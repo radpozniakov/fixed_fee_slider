@@ -1,0 +1,159 @@
+.color_1 {
+  background-color: #C4D600;
+}
+
+.color_2 {
+  background-color: #72BDE8;
+}
+
+.color_3 {
+  background-color: #75C165;
+}
+
+.color_4 {
+  background-color: #4098BE;
+}
+
+.color_5 {
+  background-color: #BBBCBC;
+}
+
+.component_wrapper {
+  width: 900px;
+  margin: 140px auto;
+}
+
+.Range-Slider {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  &__total-section {
+    margin-bottom: 32px;
+  }
+  &__total-text {
+    font-family: "Open Sans";
+    font-size: 13px;
+    strong {
+      margin-right: 8px;
+    }
+    span{
+      color: #75787B;
+      margin-right: 8px;
+    }
+  }
+
+  &__total-input {
+    border: solid 1px #D0D0CE;
+    outline: none;
+    padding: 6px 6px;
+    width: 65px;
+    line-height: 20px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  &__slider-section {
+    margin-bottom: 24px;
+  }
+
+  &__slider-element {
+    position: relative;
+    width: 100%;
+    height: 22px;
+  }
+
+  &__slider-baseline {
+      width: 100%;
+      left: 0;
+      top: 8px;
+      position: absolute;
+      height: 8px;
+      background-color: #ff6262;
+  }
+
+  &__slider-progress {
+      position: absolute;
+      height: 8px;
+      top: 0px;
+  }
+
+
+  &__items-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  &__item {
+    margin-right: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    &:last-child{
+      margin-right: 0;
+    }
+  }
+  &__item-label {
+    text-align: right;
+    display: block;
+    font-family: "Open Sans";
+    padding-bottom: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding-right: 6px;
+  }
+  &__item-label-indicator {
+    width: 7px;
+    height: 7px;
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 9px;
+  }
+  &__item-label-text {
+    position: relative;
+  }
+  &__item-input {
+    border: solid 1px #D0D0CE;
+    outline: none;
+    padding: 6px 6px;
+    width: 68px;
+    line-height: 20px;
+    font-weight: 300;
+    text-align: right;
+    font-size: 13px;
+  }
+}
+.range_handler {
+  position: absolute;
+  width: 11px;
+  height: 24px;
+  cursor: pointer;
+  border: solid 1px #97999B;
+  border-radius: 2px;
+  background-color: #fff;
+  z-index: 2;
+  &:before{
+    content: "";
+    position: absolute;
+    width: 1px;
+    top: 3px;
+    left: 3px;
+    height: 17px;
+    background-color: #97999B;
+  }
+  &:after{
+    content: "";
+    position: absolute;
+    width: 1px;
+    top: 3px;
+    right: 3px;
+    height: 17px;
+    background-color: #97999B;
+  }
+}
+
+
+
+
+

@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, OnChanges, ViewChildren, QueryList, ElementRef } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  Input,
+  OnChanges,
+  ViewChildren,
+  QueryList,
+  ElementRef
+} from "@angular/core";
 
 @Component({
   selector: "app-range-slider",
@@ -24,16 +32,13 @@ export class RangeSliderComponent implements OnInit, OnChanges {
   endOffset = { x: 0, y: 0 };
   constructor() {}
 
-  ngOnInit(): void {
-    console.log(this.country);
-  }
+  ngOnInit(): void {}
   ngOnChanges() {
     if (this.data.length !== 0) {
       this.data.forEach(element => {
         this._data = element.coutry.slice(0, -1);
       });
     }
-    console.log(this.country);
   }
   onStart(event) {
     //console.log("started output:", event);
@@ -43,10 +48,11 @@ export class RangeSliderComponent implements OnInit, OnChanges {
     //console.log("stopped output:", event);
   }
 
-  onMoving(event) {
+  onMoving(event, index) {
     this.movingOffset.x = event.x;
     this.movingOffset.y = event.y;
     console.log("Moving", event.x);
+    console.log(index);
     // console.log('', this.movingOffset);
     // console.log(this.endOffset);
   }
@@ -61,15 +67,17 @@ export class RangeSliderComponent implements OnInit, OnChanges {
     this.endOffset.y = event.y;
   }
   getStyleLine(item) {
-    const elPosition = item.left + '%';
-    const widthEl = item.width + '%';
+    const elPosition = item.left + "%";
+    const widthEl = item.width + "%";
     return {
       left: elPosition,
       width: widthEl,
       position: "absolute"
     };
   }
-  getRefEl(index){
-    console.log(index);
+  getRefEl(indexEl, item) {
+    if (indexEl === indexEl) {
+      return item;
+    }
   }
 }

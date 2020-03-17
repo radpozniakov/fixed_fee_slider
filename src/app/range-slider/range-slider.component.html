@@ -11,65 +11,12 @@
       <div class="Range-Slider__slider-element">
 
         <!--    Australia handler   -->
-          <div
-          #country
-            *ngFor="let el of _data; let index = index"
-            [ngStyle]="getStyleLine(el)"
-          >
-           <div class="range_handler"
-                [lockAxis]="lockAxis"
-                (started)="onStart($event)"
-                (stopped)="onStop($event)"
-                (movingOffset)="onMoving($event)"
-                [bounds]="getRefEl(index)" [inBounds]="inBounds"
-                (edge)="checkEdge($event)"
-                (endOffset)="onMoveEnd($event)" ngDraggable
-                style="right: 0">
-           </div>
-         </div>
-
-        <!--    Canada handler   -->
-        <!-- <div #CanadaId style="position: absolute; left: 22%; width: 21%">
-          <div class="range_handler"
-               [lockAxis]="lockAxis"
-               (started)="onStart($event)"
-               (stopped)="onStop($event)"
-               (movingOffset)="onMoving($event)"
-               (edge)="checkEdge($event)"
-               [bounds]="CanadaId" [inBounds]="inBounds"
-               (endOffset)="onMoveEnd($event)" ngDraggable
-               style="right: 0px">
+        <div #country *ngFor="let el of _data; let index = index" [ngStyle]="getStyleLine(el)">
+          <div class="range_handler" [lockAxis]="lockAxis" (started)="onStart($event)" (stopped)="onStop($event)"
+            (movingOffset)="onMoving($event,index)" [bounds]="getRefEl(index,country)" [inBounds]="inBounds"
+            (edge)="checkEdge($event)" (endOffset)="onMoveEnd($event)" ngDraggable style="right: 0">
           </div>
-        </div> -->
-
-        <!--    US handler    -->
-        <!-- <div #USId style="position: absolute; left: 43%; width: 17%">
-          <div class="range_handler"
-               [lockAxis]="lockAxis"
-               (started)="onStart($event)"
-               (stopped)="onStop($event)"
-               (movingOffset)="onMoving($event)"
-               (edge)="checkEdge($event)"
-               [bounds]="USId" [inBounds]="inBounds"
-               (endOffset)="onMoveEnd($event)" ngDraggable
-               style="right: 0px">
-          </div>
-        </div> -->
-
-        <!--    Belgium handler    -->
-        <!-- <div #BelgiumID style="position: absolute; left: 60%; width: 26%">
-          <div class="range_handler"
-               [lockAxis]="lockAxis"
-               (started)="onStart($event)"
-               (stopped)="onStop($event)"
-               (movingOffset)="onMoving($event)"
-               (edge)="checkEdge($event)"
-               [bounds]="BelgiumID" [inBounds]="inBounds"
-               (endOffset)="onMoveEnd($event)" ngDraggable
-               style="right: 0px">
-          </div>
-        </div> -->
-
+        </div>
         <div class="Range-Slider__slider-baseline">
           <div class="Range-Slider__slider-progress color_1" style="left: 0%; width: 22%;"></div>
           <div class="Range-Slider__slider-progress color_2" style="left: 22%; width: 21%;"></div>
@@ -83,16 +30,16 @@
 
     <div class="Range-Slider__items-section">
       <ng-container *ngFor="let item of data">
-      <!--   Canada   -->
-      <div class="Range-Slider__item" *ngFor="let country of item.coutry;">
+        <!--   Canada   -->
+        <div class="Range-Slider__item" *ngFor="let country of item.coutry;">
           <label [for]="country.id" class="Range-Slider__item-label">
             <span class="Range-Slider__item-label-indicator color_1"></span>
             <span class="Range-Slider__item-label-text">{{country.countryName}}</span>
           </label>
           <input [id]="country.id" class="Range-Slider__item-input" type="text" [value]="country.value | number">
           {{country.percent}}%
-      </div>
-    </ng-container>
+        </div>
+      </ng-container>
       <!--   Canada   -->
     </div>
   </div>

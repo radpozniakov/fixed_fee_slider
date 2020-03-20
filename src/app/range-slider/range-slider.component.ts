@@ -2,11 +2,9 @@ import {
   Component,
   OnInit,
   Input,
-  OnChanges,
   ViewChildren,
   QueryList,
   ElementRef,
-  AfterViewInit
 } from "@angular/core";
 
 @Component({
@@ -14,7 +12,7 @@ import {
   templateUrl: "./range-slider.component.html",
   styleUrls: ["./range-slider.component.scss"]
 })
-export class RangeSliderComponent implements OnInit, OnChanges, AfterViewInit {
+export class RangeSliderComponent implements OnInit {
   @Input() data: any;
   @ViewChildren("progressLine") progressLine: QueryList<ElementRef>;
   draggable = true;
@@ -50,8 +48,9 @@ export class RangeSliderComponent implements OnInit, OnChanges, AfterViewInit {
         this._data = element.coutry.slice(0, -1);
       });
     }
-    this.calculateItemData(this._progressLine, this.totalSum);
+
     this.calcRealWidth(this._progressLine, this.totalWidth);
+    this.calculateItemData(this._progressLine, this.totalSum);
   }
   onStart(event) {
     //console.log("started output:", event);
@@ -63,7 +62,10 @@ export class RangeSliderComponent implements OnInit, OnChanges, AfterViewInit {
 
   onMoving(event, index) {
     //this.calcPers(index, event.x);
-     this.itemsData = this.calculateItemsNumbersFromPerc(this.calcPers(index,event.x),this.totalSum);
+    this.itemsData = this.calculateItemsNumbersFromPerc(
+      this.calcPers(index, event.x),
+      this.totalSum
+    );
   }
 
   checkEdge(event) {
@@ -76,14 +78,14 @@ export class RangeSliderComponent implements OnInit, OnChanges, AfterViewInit {
     this.endOffset.y = event.y;
   }
 
-  calculateItemsNumbersFromPerc(array, total){
+  calculateItemsNumbersFromPerc(array, total) {
     return array.map((item, index) => {
       return {
         title: this.itemsData[index].title,
         ByPersentage: item,
-        ByNumber: item * total / 100
-      }
-    })
+        ByNumber: (item * total) / 100
+      };
+    });
   }
   comunismCalculaction(index, value) {
     let arrforReturn;
@@ -113,7 +115,7 @@ export class RangeSliderComponent implements OnInit, OnChanges, AfterViewInit {
     let endPos = x;
     let widthElement = endPos - startPos;
     let newPercange = (widthElement / this.realWidth) * 100;
-    return this.comunismCalculaction(index,newPercange);
+    return this.comunismCalculaction(index, newPercange);
   }
   calcRealWidth(items, width) {
     if (items.length > 0 && items.length !== 1) {

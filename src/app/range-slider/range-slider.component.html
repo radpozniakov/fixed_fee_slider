@@ -1,46 +1,50 @@
 <div class="component_wrapper">
-  <div class="Range-Slider">
+  <div class="Range-Slider" [ngStyle]="getTotalWidthSlider()">
     <div class="Range-Slider__total-section" *ngFor="let item of data">
       <p class="Range-Slider__total-text">
         <strong>Financial Advisory</strong><span>client service fee</span>
         <input class="Range-Slider__total-input" type="text" [value]="item.total | number">
       </p>
     </div>
-
     <div class="Range-Slider__slider-section">
       <div class="Range-Slider__slider-element">
+        <div #country *ngFor="let el of _data; let index = index" style="position:absolute; left:0px;width:100%;">
 
-        <!--    Australia handler   -->
-        <div #country *ngFor="let el of _data; let index = index" [ngStyle]="getStyleLine(el)">
-          <div class="range_handler" [lockAxis]="lockAxis" (started)="onStart($event)" (stopped)="onStop($event)"
-            (movingOffset)="onMoving($event,index)" [bounds]="getRefEl(index,country)" [inBounds]="inBounds"
-            (edge)="checkEdge($event)" (endOffset)="onMoveEnd($event)" ngDraggable style="right: 0">
+
+          <div class="range_handler" [lockAxis]="lockAxis"
+            (started)="onStart($event)" 
+            (stopped)="onStop($event)"
+            (movingOffset)="onMoving($event,index)" 
+            [bounds]="getRefEl(index,country)" 
+            [inBounds]="inBounds"
+            (edge)="checkEdge($event)"
+            (endOffset)="onMoveEnd($event)" 
+            [ngStyle]="stylePositionHandler(index)"
+            ngDraggable>
           </div>
+
+
         </div>
         <div class="Range-Slider__slider-baseline">
-          <div class="Range-Slider__slider-progress color_1" style="left: 0%; width: 22%;"></div>
-          <div class="Range-Slider__slider-progress color_2" style="left: 22%; width: 21%;"></div>
-          <div class="Range-Slider__slider-progress color_3" style="left: 43%; width: 17%;"></div>
-          <div class="Range-Slider__slider-progress color_4" style="left: 60%; width: 26%;"></div>
-          <div class="Range-Slider__slider-progress color_5" style="left: 86%; width: 14%;"></div>
+          <div *ngFor="let line of _progressLine; let index = index"
+          [ngStyle]="getStyle(index)"
+          #progressLine
+            class="Range-Slider__slider-progress color_{{index + 1}}">
+          </div>
         </div>
-
       </div>
     </div>
-
     <div class="Range-Slider__items-section">
       <ng-container *ngFor="let item of data">
-        <!--   Canada   -->
-        <div class="Range-Slider__item" *ngFor="let country of item.coutry;">
+        <div class="Range-Slider__item" *ngFor="let country of itemsData;">
           <label [for]="country.id" class="Range-Slider__item-label">
             <span class="Range-Slider__item-label-indicator color_1"></span>
-            <span class="Range-Slider__item-label-text">{{country.countryName}}</span>
+            <span class="Range-Slider__item-label-text">{{country.title}}</span>
           </label>
-          <input [id]="country.id" class="Range-Slider__item-input" type="text" [value]="country.value | number">
-          {{country.percent}}%
+          <input [id]="country.id" class="Range-Slider__item-input" type="text" [value]="country.ByNumber | number">
+          {{country.ByPersentage}}%
         </div>
       </ng-container>
-      <!--   Canada   -->
     </div>
   </div>
 </div>

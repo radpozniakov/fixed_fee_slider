@@ -25,13 +25,10 @@ export class RangeSliderComponent implements OnInit {
   };
   _data = [];
   _progressLine = [];
+  freaze = [];
   useHandle = false;
   lockAxis = "y";
-  pos: any;
-  left: any;
-  position;
-  movingOffset = { x: 0, y: 0 };
-  endOffset = { x: 0, y: 0 };
+  posX = 0;
   handlerWidth = 12;
   totalWidth: number;
   totalSum: number;
@@ -48,34 +45,52 @@ export class RangeSliderComponent implements OnInit {
         this._data = element.coutry.slice(0, -1);
       });
     }
-
     this.calcRealWidth(this._progressLine, this.totalWidth);
     this.calculateItemData(this._progressLine, this.totalSum);
   }
-  onStart(event) {
-    //console.log("started output:", event);
+  onStart(event, index) {
+    this.useHandle = true;
+    this.freaze[index] = this.getPositionHandler(index);
+  }
+  onStop(event, index) {
+    this._data = this._data.map((item) => {
+        return {
+          title: Date.now(),
+          value: item.value
+        };
+    });
+
+    this.posX = 0;
+    this.freaze = [];
+  }
+  onMoveEnd(event, index) {
+    this.useHandle = false;
   }
 
-  onStop(event) {
-    //console.log("stopped output:", event);
+  //проверка что бы много раз с одинаковым значением не срабатывал ивент
+  checkSameXValue(x) {
+    if (this.posX !== x) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   onMoving(event, index) {
-    //this.calcPers(index, event.x);
-    this.itemsData = this.calculateItemsNumbersFromPerc(
-      this.calcPers(index, event.x),
-      this.totalSum
-    );
+    //проверка что бы много раз с одинаковым значением не срабатывал ивент
+    if (this.posX !== event.x) {
+        const differ = event.x - this.posX;
+          this.itemsData = this.calculateItemsNumbersFromPerc(
+              this.calcPers(index, differ),
+              this.totalSum
+          );
+      this.posX = event.x;
+    }
   }
 
   checkEdge(event) {
     // this.edge = event;
     //console.log('edge:', event);
-  }
-
-  onMoveEnd(event) {
-    this.endOffset.x = event.x;
-    this.endOffset.y = event.y;
   }
 
   calculateItemsNumbersFromPerc(array, total) {
@@ -89,33 +104,52 @@ export class RangeSliderComponent implements OnInit {
   }
   comunismCalculaction(index, value) {
     let arrforReturn;
-
     // Все равномерно добавляем
     if (value < 0) {
       let homMuchAfterMe = this.itemsData.length - index - 1;
       let Positivedifference = value / homMuchAfterMe;
+
       arrforReturn = this.itemsData.map((item, indexMap) => {
         if (indexMap < index) {
           return item.ByPersentage;
         } else if (indexMap === index) {
-          let trasformToPlus = value;
-          trasformToPlus = -trasformToPlus;
+          let trasformToPlus = -value;
           return item.ByPersentage - trasformToPlus;
         } else {
-          return item.ByPersentage + Positivedifference;
+          let fff = -Positivedifference;
+          return item.ByPersentage + fff;
         }
       });
+    } else if (value > 0) {
+
+      let howMuchAfterMeWithZero = this.itemsData.filter((item, filterIndex) => {
+        if (filterIndex > index && item.ByPercentage <= 0) {
+          return true;
+        }
+      }).length;
+
+      arrforReturn = this.itemsData.map((item, indexMap) => {
+        if (indexMap < index) {
+          return item.ByPersentage;
+        } else if (indexMap === index) {
+          return item.ByPersentage + value;
+        } else {
+
+          return item.ByPersentage - (value / ((this.itemsData.length - 1 - index) - howMuchAfterMeWithZero));
+
+        }
+      });
+
     } else if (value === 0) {
       arrforReturn = this.itemsData.map(item => item.ByPersentage);
     }
     return arrforReturn;
   }
+
   calcPers(index, x) {
-    let startPos = this.progressItemStartPosition(index);
-    let endPos = x;
-    let widthElement = endPos - startPos;
-    let newPercange = (widthElement / this.realWidth) * 100;
-    return this.comunismCalculaction(index, newPercange);
+    let newPercange = (x / this.realWidth) * 100;
+    let res = this.comunismCalculaction(index, newPercange);
+    return res;
   }
   calcRealWidth(items, width) {
     if (items.length > 0 && items.length !== 1) {
@@ -124,7 +158,6 @@ export class RangeSliderComponent implements OnInit {
       this.realWidth = width;
     }
   }
-
   calculateItemData(data, totalNumber) {
     data.map(item => {
       this.itemsData.push({
@@ -148,13 +181,13 @@ export class RangeSliderComponent implements OnInit {
     }
     return sum;
   }
-
   getStyle(index) {
     return {
       left: this.progressItemStartPosition(index) + "px",
       width: this.progressItemWidth(index) + "px"
     };
   }
+
   getPositionHandler(index) {
     let sumPos = 0;
     let i = 0;
@@ -167,11 +200,19 @@ export class RangeSliderComponent implements OnInit {
     }
     return sumPos - this.handlerWidth;
   }
+
   stylePositionHandler(index) {
-    return {
-      left: this.getPositionHandler(index) + "px"
-    };
+    if(this.useHandle !== false){
+      return {
+        left: this.freaze[index] ? this.freaze[index] : this.getPositionHandler(index) + "px",
+      }
+    }else{
+      return {
+        left: this.getPositionHandler(index) + "px",
+      }
+    }
   }
+
   getTotalWidthSlider() {
     return {
       width: this.totalWidth + "px"

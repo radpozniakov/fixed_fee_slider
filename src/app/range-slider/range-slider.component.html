@@ -10,21 +10,22 @@
       <div class="Range-Slider__slider-element">
         <div #country *ngFor="let el of _data; let index = index" style="position:absolute; left:0px;width:100%;">
 
-
-          <div class="range_handler" [lockAxis]="lockAxis"
-            (started)="onStart($event)" 
-            (stopped)="onStop($event)"
-            (movingOffset)="onMoving($event,index)" 
-            [bounds]="getRefEl(index,country)" 
+          <div class="range_handler" [lockAxis]="lockAxis" *ngIf="index + 1 !== itemsData.length"
+            (started)="onStart($event, index)"
+            (stopped)="onStop($event, index)"
+            (endOffset)="onMoveEnd($event, index)"
+            (movingOffset)="onMoving($event,index)"
+            [bounds]="getRefEl(index,country)"
             [inBounds]="inBounds"
             (edge)="checkEdge($event)"
-            (endOffset)="onMoveEnd($event)" 
             [ngStyle]="stylePositionHandler(index)"
             ngDraggable>
+            <span style="position: absolute; font-size: 0">{{el.title}}</span>
           </div>
 
 
         </div>
+
         <div class="Range-Slider__slider-baseline">
           <div *ngFor="let line of _progressLine; let index = index"
           [ngStyle]="getStyle(index)"
@@ -32,6 +33,8 @@
             class="Range-Slider__slider-progress color_{{index + 1}}">
           </div>
         </div>
+
+
       </div>
     </div>
     <div class="Range-Slider__items-section">

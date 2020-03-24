@@ -1,7 +1,6 @@
 .color_1 {
   background-color: #C4D600;
 }
-
 .color_2 {
   background-color: #72BDE8;
 }
@@ -124,6 +123,7 @@
     font-size: 13px;
   }
 }
+
 .range_handler {
   position: absolute;
   width: 11px;
@@ -132,6 +132,7 @@
   border: solid 1px #97999B;
   border-radius: 2px;
   background-color: #fff;
+  //opacity: 0.5;
   z-index: 2;
   &:before{
     content: "";
@@ -153,7 +154,21 @@
   }
 }
 
-
-
-
-
+.range_restrictions {
+  position: absolute;
+}
+//.range_restrictions.top_1 {
+//  top: -19px;
+//}
+//
+//.range_restrictions.top_2 {
+//  top: -35px;
+//}
+//
+//.range_restrictions.top_3 {
+//  top: -50px;
+//}
+//
+//.range_restrictions.top_4 {
+//  top: -65px;
+//}

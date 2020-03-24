@@ -12,6 +12,7 @@ import {
   templateUrl: "./range-slider.component.html",
   styleUrls: ["./range-slider.component.scss"]
 })
+
 export class RangeSliderComponent implements OnInit {
   @Input() data: any;
   @ViewChildren("progressLine") progressLine: QueryList<ElementRef>;
@@ -48,10 +49,12 @@ export class RangeSliderComponent implements OnInit {
     this.calcRealWidth(this._progressLine, this.totalWidth);
     this.calculateItemData(this._progressLine, this.totalSum);
   }
+
   onStart(event, index) {
     this.useHandle = true;
     this.freaze[index] = this.getPositionHandler(index);
   }
+
   onStop(event, index) {
     this._data = this._data.map((item) => {
         return {
@@ -63,21 +66,12 @@ export class RangeSliderComponent implements OnInit {
     this.posX = 0;
     this.freaze = [];
   }
+
   onMoveEnd(event, index) {
     this.useHandle = false;
   }
 
-  //проверка что бы много раз с одинаковым значением не срабатывал ивент
-  checkSameXValue(x) {
-    if (this.posX !== x) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   onMoving(event, index) {
-    //проверка что бы много раз с одинаковым значением не срабатывал ивент
     if (this.posX !== event.x) {
         const differ = event.x - this.posX;
           this.itemsData = this.calculateItemsNumbersFromPerc(
@@ -90,7 +84,6 @@ export class RangeSliderComponent implements OnInit {
 
   checkEdge(event) {
     // this.edge = event;
-    //console.log('edge:', event);
   }
 
   calculateItemsNumbersFromPerc(array, total) {
@@ -102,6 +95,7 @@ export class RangeSliderComponent implements OnInit {
       };
     });
   }
+
   comunismCalculaction(index, value) {
     let arrforReturn;
     // Все равномерно добавляем
@@ -151,6 +145,7 @@ export class RangeSliderComponent implements OnInit {
     let res = this.comunismCalculaction(index, newPercange);
     return res;
   }
+
   calcRealWidth(items, width) {
     if (items.length > 0 && items.length !== 1) {
       this.realWidth = width - (items.length - 1) * this.handlerWidth;
@@ -158,6 +153,7 @@ export class RangeSliderComponent implements OnInit {
       this.realWidth = width;
     }
   }
+
   calculateItemData(data, totalNumber) {
     data.map(item => {
       this.itemsData.push({
@@ -171,6 +167,7 @@ export class RangeSliderComponent implements OnInit {
   progressItemWidth(index) {
     return (this.itemsData[index].ByPersentage * this.realWidth) / 100;
   }
+
   progressItemStartPosition(index) {
     if (index === 0) return 0;
     let sum = 0;
@@ -181,6 +178,7 @@ export class RangeSliderComponent implements OnInit {
     }
     return sum;
   }
+
   getStyle(index) {
     return {
       left: this.progressItemStartPosition(index) + "px",
@@ -201,15 +199,43 @@ export class RangeSliderComponent implements OnInit {
     return sumPos - this.handlerWidth;
   }
 
+  leftConstr(index) {
+    if (index === 0) {
+      return 0;
+    } else {
+      return this.progressItemStartPosition(index);
+    }
+  }
+
+  rightConstr(index) {
+    if (index === this.itemsData.length - 2) {
+      return this.totalWidth - this.progressItemStartPosition(index);
+    } else {
+      if (index === 0) {
+        return (this.progressItemStartPosition(index + 2)) - this.handlerWidth;
+      } else {
+        let NexPos = this.progressItemStartPosition(index + 2);
+        let MyPos = this.progressItemStartPosition(index);
+        let res = NexPos - MyPos;
+        return res - this.handlerWidth;
+      }
+    }
+  }
+
+  getConstraints(index) {
+    return {
+      left: `${this.leftConstr(index)}px`,
+      width: `${this.rightConstr(index)}px`
+    };
+  }
+
   stylePositionHandler(index) {
-    if(this.useHandle !== false){
-      return {
-        left: this.freaze[index] ? this.freaze[index] : this.getPositionHandler(index) + "px",
-      }
-    }else{
-      return {
-        left: this.getPositionHandler(index) + "px",
-      }
+    const startPosition = this.progressItemStartPosition(index);
+    const handlerPosition = this.getPositionHandler(index);
+    if (this.useHandle !== false) {
+      return { left: this.freaze[index] ? this.freaze[index] : handlerPosition - startPosition + "px" };
+    } else {
+      return { left: handlerPosition - startPosition + "px" };
     }
   }
 
@@ -218,6 +244,7 @@ export class RangeSliderComponent implements OnInit {
       width: this.totalWidth + "px"
     };
   }
+
   getRefEl(indexEl, item) {
     if (indexEl === indexEl) {
       return item;

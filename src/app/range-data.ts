@@ -5,21 +5,24 @@ export const data = [
       coutry: [
         {
           title: "Australia (Lead)",
-          value: 11000
+          value: 5280
         },
         {
           title: "Canada",
-          value: 1500
+          value: 5040
         },
         {
-          title: "Canada",
-          value: 1500
+          title: "US",
+          value: 4080
         },
         {
-          title: "Canada",
-          value: 10000
-        }    
+          title: "Belgium",
+          value: 6240
+        },
+        {
+          title: "Other",
+          value: 3360
+        },
       ]
     }
   ];
-  

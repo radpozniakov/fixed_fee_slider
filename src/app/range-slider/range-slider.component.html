@@ -8,8 +8,10 @@
     </div>
     <div class="Range-Slider__slider-section">
       <div class="Range-Slider__slider-element">
-        <div #country *ngFor="let el of _data; let index = index" style="position:absolute; left:0px;width:100%;">
 
+        <div class="range_restrictions color_{{index + 1}} top_{{index + 1}}" #country *ngFor="let el of _data; let index = index"
+        [ngStyle]="getConstraints(index)"
+        >
           <div class="range_handler" [lockAxis]="lockAxis" *ngIf="index + 1 !== itemsData.length"
             (started)="onStart($event, index)"
             (stopped)="onStop($event, index)"
@@ -18,14 +20,11 @@
             [bounds]="getRefEl(index,country)"
             [inBounds]="inBounds"
             (edge)="checkEdge($event)"
-            [ngStyle]="stylePositionHandler(index)"
+          [ngStyle]="stylePositionHandler(index)"
             ngDraggable>
             <span style="position: absolute; font-size: 0">{{el.title}}</span>
           </div>
-
-
         </div>
-
         <div class="Range-Slider__slider-baseline">
           <div *ngFor="let line of _progressLine; let index = index"
           [ngStyle]="getStyle(index)"
@@ -33,15 +32,13 @@
             class="Range-Slider__slider-progress color_{{index + 1}}">
           </div>
         </div>
-
-
       </div>
     </div>
     <div class="Range-Slider__items-section">
       <ng-container *ngFor="let item of data">
-        <div class="Range-Slider__item" *ngFor="let country of itemsData;">
+        <div class="Range-Slider__item" *ngFor="let country of itemsData; let index = index">
           <label [for]="country.id" class="Range-Slider__item-label">
-            <span class="Range-Slider__item-label-indicator color_1"></span>
+            <span class="Range-Slider__item-label-indicator color_{{index + 1}}"></span>
             <span class="Range-Slider__item-label-text">{{country.title}}</span>
           </label>
           <input [id]="country.id" class="Range-Slider__item-input" type="text" [value]="country.ByNumber | number">

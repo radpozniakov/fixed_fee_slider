@@ -98,45 +98,67 @@ export class RangeSliderComponent implements OnInit {
 
   comunismCalculaction(index, value) {
     let arrforReturn;
-    // Все равномерно добавляем
+    let minusAmount = 0;
+
     if (value < 0) {
-      let homMuchAfterMe = this.itemsData.length - index - 1;
-      let Positivedifference = value / homMuchAfterMe;
+      const homMuchAfterMe = this.itemsData.length - index - 1;
+      const PositiveDifference = value / homMuchAfterMe;
 
       arrforReturn = this.itemsData.map((item, indexMap) => {
         if (indexMap < index) {
           return item.ByPersentage;
         } else if (indexMap === index) {
-          let trasformToPlus = -value;
-          return item.ByPersentage - trasformToPlus;
+          const transformToPlus = -value;
+          return item.ByPersentage - transformToPlus;
         } else {
-          let fff = -Positivedifference;
-          return item.ByPersentage + fff;
+          const transformToPlus = -PositiveDifference;
+          return item.ByPersentage + transformToPlus;
         }
+
       });
     } else if (value > 0) {
 
-      let howMuchAfterMeWithZero = this.itemsData.filter((item, filterIndex) => {
-        if (filterIndex > index && item.ByPercentage <= 0) {
+      const howMuchAfterMeWithZero = this.itemsData.filter((item, filterIndex) => {
+        if (filterIndex > index && item.ByPersentage === 0) {
           return true;
         }
       }).length;
 
+
       arrforReturn = this.itemsData.map((item, indexMap) => {
+        let result = 0;
+
+        const partOfValue = value / ((this.itemsData.length - 1 - index) - howMuchAfterMeWithZero);
         if (indexMap < index) {
           return item.ByPersentage;
         } else if (indexMap === index) {
           return item.ByPersentage + value;
         } else {
+          if (item.ByPersentage <= 0) {
+            return 0;
+          } else {
 
-          return item.ByPersentage - (value / ((this.itemsData.length - 1 - index) - howMuchAfterMeWithZero));
+            if (minusAmount) {
+              result = item.ByPersentage - partOfValue;
+              result = result - minusAmount;
+              minusAmount = 0;
+            } else {
+              result = item.ByPersentage - partOfValue;
+            }
 
+            if (result <= 0) {
+              minusAmount = -result;
+              return 0;
+            } else {
+              return result;
+            }
+          }
         }
       });
-
     } else if (value === 0) {
       arrforReturn = this.itemsData.map(item => item.ByPersentage);
     }
+    minusAmount = 0;
     return arrforReturn;
   }
 

@@ -22,7 +22,7 @@ export const data = [
         {
           title: "Other",
           value: 3360
-        },
+        }
       ]
     }
   ];

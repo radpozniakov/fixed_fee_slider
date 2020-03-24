@@ -8,7 +8,6 @@
     </div>
     <div class="Range-Slider__slider-section">
       <div class="Range-Slider__slider-element">
-
         <div class="range_restrictions color_{{index + 1}} top_{{index + 1}}" #country *ngFor="let el of _data; let index = index"
         [ngStyle]="getConstraints(index)"
         >
@@ -30,6 +29,7 @@
           [ngStyle]="getStyle(index)"
           #progressLine
             class="Range-Slider__slider-progress color_{{index + 1}}">
+            <p class="Range-Slider__slider-progress-percentage">{{this.itemsData[index].ByPersentage | number:'1.1-2'}}%</p>
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@
             <span class="Range-Slider__item-label-text">{{country.title}}</span>
           </label>
           <input [id]="country.id" class="Range-Slider__item-input" type="text" [value]="country.ByNumber | number">
-          {{country.ByPersentage}}%
+          <!-- <span style="font-size: 8px">{{country.ByPersentage}}%</span>-->
         </div>
       </ng-container>
     </div>

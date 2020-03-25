@@ -30,6 +30,9 @@ export class RangeSliderComponent implements OnInit {
   useHandle = false;
   lockAxis = "y";
   posX = 0;
+
+  oldValue = 0;
+
   handlerWidth = 12;
   totalWidth: number;
   totalSum: number;
@@ -54,7 +57,6 @@ export class RangeSliderComponent implements OnInit {
     this.useHandle = true;
     this.freaze[index] = this.getPositionHandler(index);
   }
-
   onStop(event, index) {
     this._data = this._data.map((item) => {
         return {
@@ -62,7 +64,6 @@ export class RangeSliderComponent implements OnInit {
           value: item.value
         };
     });
-
     this.posX = 0;
     this.freaze = [];
   }
@@ -74,10 +75,18 @@ export class RangeSliderComponent implements OnInit {
   onMoving(event, index) {
     if (this.posX !== event.x) {
         const differ = event.x - this.posX;
-          this.itemsData = this.calculateItemsNumbersFromPerc(
-              this.calcPers(index, differ),
-              this.totalSum
-          );
+        const newPercange = (differ / this.realWidth) * 100;
+        const ress = newPercange  * this.totalSum / 100;
+
+        const resultOfComunism = this.comunismCalculaction(index,  -ress);
+        this.itemsData = resultOfComunism.map(item => {
+          return {
+            title: item.title,
+            ByNumber: +item.ByNumber,
+            ByPersentage: (item.ByNumber / this.totalSum) * 100,
+          };
+        });
+
       this.posX = event.x;
     }
   }
@@ -86,86 +95,124 @@ export class RangeSliderComponent implements OnInit {
     // this.edge = event;
   }
 
-  calculateItemsNumbersFromPerc(array, total) {
-    return array.map((item, index) => {
-      return {
-        title: this.itemsData[index].title,
-        ByPersentage: item,
-        ByNumber: (item * total) / 100
-      };
-    });
-  }
-
   comunismCalculaction(index, value) {
+    //console.log(`index ${index}`, index);
+    //console.log(`index ${value}`, value);
+    //index = елемент который редактируется
+    //value = сумма на которую нужно изменить текущий и относительно следующие (это не проценты %)
+
     let arrforReturn;
     let minusAmount = 0;
 
-    if (value < 0) {
+    if (value > 0) {
       const homMuchAfterMe = this.itemsData.length - index - 1;
       const PositiveDifference = value / homMuchAfterMe;
 
       arrforReturn = this.itemsData.map((item, indexMap) => {
         if (indexMap < index) {
-          return item.ByPersentage;
+          return {
+            title: item.title,
+            ByNumber: +item.ByNumber,
+            ByPersentage: 0
+          };
         } else if (indexMap === index) {
-          const transformToPlus = -value;
-          return item.ByPersentage - transformToPlus;
+          const numb = this.freaze[index] ? item.ByNumber - value : +item.ByNumber;
+          return {
+            title: item.title,
+            ByNumber: numb,
+            ByPersentage: 0
+          };
         } else {
-          const transformToPlus = -PositiveDifference;
-          return item.ByPersentage + transformToPlus;
+          const resNumber = +item.ByNumber + -(-PositiveDifference);
+          return {
+            title: item.title,
+            ByNumber: resNumber,
+            ByPersentage: 0
+          };
         }
-
       });
-    } else if (value > 0) {
+    } else if (value < 0) {
+      function calcMinus(DataArr, indexElement, freeze) {
+        return DataArr.map((item, indexMap) => {
+          let result = 0;
+          const numberItem = +item.ByNumber;
+          let partOfValue = value / ((DataArr.length - 1 - indexElement) - howMuchAfterMeWithZero);
+          partOfValue = -partOfValue;
 
+          if (indexMap < indexElement) {
+            return {
+              title: item.title,
+              ByNumber: numberItem,
+              ByPersentage: 0
+            };
+          } else if (indexMap === indexElement) {
+            const numb = freeze[index] ? item.ByNumber - value : +item.ByNumber;
+            return {
+              title: item.title,
+              ByNumber: numb,
+              ByPersentage: 0
+            };
+          }
+          else {
+            if (numberItem <= 0) {
+              return {
+                title: item.title,
+                ByNumber: 0,
+                ByPersentage: 0
+              };
+            } else {
+              if (minusAmount) {
+                result = numberItem - partOfValue;
+                result = result - minusAmount;
+                minusAmount = 0;
+              } else {
+                result = numberItem - partOfValue;
+              }
+              if (result <= 0) {
+                minusAmount = -result;
+                return {
+                  title: item.title,
+                  ByNumber: 0,
+                  ByPersentage: 0
+                };
+              } else {
+                return {
+                  title: item.title,
+                  ByNumber: +result.toFixed(2),
+                  ByPersentage: 0
+                };
+              }
+            }
+          }
+        });
+      }
       const howMuchAfterMeWithZero = this.itemsData.filter((item, filterIndex) => {
-        if (filterIndex > index && item.ByPersentage === 0) {
+        if (filterIndex > index && item.ByNumber === 0) {
           return true;
         }
       }).length;
+      arrforReturn = calcMinus(this.itemsData, index, this.freaze);
 
+      if (minusAmount) {
+        arrforReturn = calcMinus(this.itemsData, index, this.freaze);
+      }
 
-      arrforReturn = this.itemsData.map((item, indexMap) => {
-        let result = 0;
-
-        const partOfValue = value / ((this.itemsData.length - 1 - index) - howMuchAfterMeWithZero);
-        if (indexMap < index) {
-          return item.ByPersentage;
-        } else if (indexMap === index) {
-          return item.ByPersentage + value;
-        } else {
-          if (item.ByPersentage <= 0) {
-            return 0;
-          } else {
-
-            if (minusAmount) {
-              result = item.ByPersentage - partOfValue;
-              result = result - minusAmount;
-              minusAmount = 0;
-            } else {
-              result = item.ByPersentage - partOfValue;
-            }
-
-            if (result <= 0) {
-              minusAmount = -result;
-              return 0;
-            } else {
-              return result;
-            }
-          }
-        }
-      });
     } else if (value === 0) {
-      arrforReturn = this.itemsData.map(item => item.ByPersentage);
+      arrforReturn = this.itemsData.map(item => {
+       return {
+         title: item.title,
+         ByNumber: +item.ByNumber,
+         ByPersentage: 0
+        };
+      });
     }
+
     minusAmount = 0;
     return arrforReturn;
-  }
 
-  calcPers(index, x) {
-    let newPercange = (x / this.realWidth) * 100;
-    let res = this.comunismCalculaction(index, newPercange);
-    return res;
+    // return arrforReturn.map((item) => {
+    //   return +item.toFixed(2);
+    // });
   }
 
   calcRealWidth(items, width) {
@@ -187,7 +234,10 @@ export class RangeSliderComponent implements OnInit {
   }
 
   progressItemWidth(index) {
-    return (this.itemsData[index].ByPersentage * this.realWidth) / 100;
+    // let sss = this.itemsData[index].ByNumber;
+    const fff = (this.itemsData[index].ByPersentage * this.realWidth) / 100;
+    //console.log(`progressItemWidth ${index}`, fff);
+    return fff;
   }
 
   progressItemStartPosition(index) {
@@ -201,7 +251,7 @@ export class RangeSliderComponent implements OnInit {
     return sum;
   }
 
-  getStyle(index) {
+  getStyleProgress(index) {
     return {
       left: this.progressItemStartPosition(index) + "px",
       width: this.progressItemWidth(index) + "px"
@@ -272,4 +322,50 @@ export class RangeSliderComponent implements OnInit {
       return item;
     }
   }
+
+  onTotalChange(e) {
+    this.totalSum = +e.value;
+    this.itemsData = this.itemsData.map((item, index) => {
+      return {
+        ByPersentage: item.ByPersentage,
+        ByNumber: item.ByPersentage * this.totalSum / 100,
+        title: item.title
+      };
+    });
+  }
+
+  countryFocusIn(e) {
+    this.oldValue = +e.target.value;
+  }
+
+  onChangeCountryValue(e, index, event) {
+    const newValue = +event.target.value;
+    const differ = +this.oldValue - +newValue;
+
+    console.log('differ', differ);
+
+    const resultOfComunism = this.comunismCalculaction(index, differ);
+
+    this.totalSum = this.returnSumOfArray(resultOfComunism);
+    this.itemsData = resultOfComunism.map(item => {
+      return {
+        title: item.title,
+        ByNumber: +item.ByNumber,
+        ByPersentage: (item.ByNumber / this.totalSum) * 100,
+      };
+    });
+  }
+
+  returnSumOfArray(arr) {
+    return arr.reduce((sum, current) => {
+      return +sum + current.ByNumber;
+    }, 0);
+  }
+
+  returnSumOfCountries() {
+    return this.itemsData.reduce((sum, current) => {
+      return +sum + +current.ByNumber;
+    }, 0);
+  }
+
 }

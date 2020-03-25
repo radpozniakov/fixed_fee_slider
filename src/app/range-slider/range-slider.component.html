@@ -1,11 +1,13 @@
 <div class="component_wrapper">
   <div class="Range-Slider" [ngStyle]="getTotalWidthSlider()">
-    <div class="Range-Slider__total-section" *ngFor="let item of data">
+    <h3>{{returnSumOfCountries()}}</h3>
+    <div class="Range-Slider__total-section">
       <p class="Range-Slider__total-text">
         <strong>Financial Advisory</strong><span>client service fee</span>
-        <input class="Range-Slider__total-input" type="text" [value]="item.total | number">
+        <input class="Range-Slider__total-input" type="text" [(ngModel)]="totalSum" #totalInput="ngModel" (change)="onTotalChange(totalInput)">
       </p>
     </div>
+
     <div class="Range-Slider__slider-section">
       <div class="Range-Slider__slider-element">
         <div class="range_restrictions color_{{index + 1}} top_{{index + 1}}" #country *ngFor="let el of _data; let index = index"
@@ -26,7 +28,7 @@
         </div>
         <div class="Range-Slider__slider-baseline">
           <div *ngFor="let line of _progressLine; let index = index"
-          [ngStyle]="getStyle(index)"
+          [ngStyle]="getStyleProgress(index)"
           #progressLine
             class="Range-Slider__slider-progress color_{{index + 1}}">
             <p class="Range-Slider__slider-progress-percentage">{{this.itemsData[index].ByPersentage | number:'1.1-2'}}%</p>
@@ -37,11 +39,17 @@
     <div class="Range-Slider__items-section">
       <ng-container *ngFor="let item of data">
         <div class="Range-Slider__item" *ngFor="let country of itemsData; let index = index">
-          <label [for]="country.id" class="Range-Slider__item-label">
+          <label class="Range-Slider__item-label">
             <span class="Range-Slider__item-label-indicator color_{{index + 1}}"></span>
             <span class="Range-Slider__item-label-text">{{country.title}}</span>
           </label>
-          <input [id]="country.id" class="Range-Slider__item-input" type="text" [value]="country.ByNumber | number">
+          <input class="Range-Slider__item-input"
+                 type="text"
+                 [(ngModel)]="country.ByNumber"
+                 #ttt="ngModel"
+                (focus)="countryFocusIn($event)"
+                (change)="onChangeCountryValue(ttt, index, $event)">
+
           <!-- <span style="font-size: 8px">{{country.ByPersentage}}%</span>-->
         </div>
       </ng-container>

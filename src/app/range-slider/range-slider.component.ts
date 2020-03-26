@@ -76,31 +76,40 @@ export class RangeSliderComponent implements OnInit {
     if (this.posX !== event.x) {
         const differ = event.x - this.posX;
         const newPercange = (differ / this.realWidth) * 100;
-        const ress = newPercange  * this.totalSum / 100;
-
-        const resultOfComunism = this.comunismCalculaction(index,  -ress);
-        this.itemsData = resultOfComunism.map(item => {
-          return {
-            title: item.title,
-            ByNumber: +item.ByNumber,
-            ByPersentage: (item.ByNumber / this.totalSum) * 100,
-          };
+        const value = newPercange  * this.totalSum / 100;
+        const resultOfEqualCalc = this.equalCalculaction(index,  -value);
+        const SumOfNumbers = resultOfEqualCalc.reduce((sum, current) => {
+          return +sum + +current.ByNumber;
+        }, 0);
+        const difference = this.totalSum - SumOfNumbers;
+        this.itemsData = resultOfEqualCalc.map((item, indexMap) => {
+          if (index === indexMap) {
+            const withCompensation = +item.ByNumber + difference;
+            return {
+              title: item.title,
+              ByNumber: withCompensation,
+              ByPersentage: (withCompensation / this.totalSum) * 100,
+            };
+          } else {
+            return {
+              title: item.title,
+              ByNumber: +item.ByNumber,
+              ByPersentage: (item.ByNumber / this.totalSum) * 100,
+            };
+          }
         });
-
       this.posX = event.x;
     }
   }
+
+
+
 
   checkEdge(event) {
     // this.edge = event;
   }
 
-  comunismCalculaction(index, value) {
-    //console.log(`index ${index}`, index);
-    //console.log(`index ${value}`, value);
-    //index = елемент который редактируется
-    //value = сумма на которую нужно изменить текущий и относительно следующие (это не проценты %)
-
+  equalCalculaction(index, value) {
     let arrforReturn;
     let minusAmount = 0;
 
@@ -119,7 +128,7 @@ export class RangeSliderComponent implements OnInit {
           const numb = this.freaze[index] ? item.ByNumber - value : +item.ByNumber;
           return {
             title: item.title,
-            ByNumber: numb,
+            ByNumber: +numb.toFixed(2),
             ByPersentage: 0
           };
         } else {
@@ -152,8 +161,7 @@ export class RangeSliderComponent implements OnInit {
               ByNumber: numb,
               ByPersentage: 0
             };
-          }
-          else {
+          } else {
             if (numberItem <= 0) {
               return {
                 title: item.title,
@@ -206,13 +214,8 @@ export class RangeSliderComponent implements OnInit {
         };
       });
     }
-
     minusAmount = 0;
     return arrforReturn;
-
-    // return arrforReturn.map((item) => {
-    //   return +item.toFixed(2);
-    // });
   }
 
   calcRealWidth(items, width) {
@@ -234,10 +237,7 @@ export class RangeSliderComponent implements OnInit {
   }
 
   progressItemWidth(index) {
-    // let sss = this.itemsData[index].ByNumber;
-    const fff = (this.itemsData[index].ByPersentage * this.realWidth) / 100;
-    //console.log(`progressItemWidth ${index}`, fff);
-    return fff;
+    return (this.itemsData[index].ByPersentage * this.realWidth) / 100;
   }
 
   progressItemStartPosition(index) {
@@ -271,7 +271,7 @@ export class RangeSliderComponent implements OnInit {
     return sumPos - this.handlerWidth;
   }
 
-  leftConstr(index) {
+  leftConstrain(index) {
     if (index === 0) {
       return 0;
     } else {
@@ -279,16 +279,16 @@ export class RangeSliderComponent implements OnInit {
     }
   }
 
-  rightConstr(index) {
+  rightConstrain(index) {
     if (index === this.itemsData.length - 2) {
       return this.totalWidth - this.progressItemStartPosition(index);
     } else {
       if (index === 0) {
         return (this.progressItemStartPosition(index + 2)) - this.handlerWidth;
       } else {
-        let NexPos = this.progressItemStartPosition(index + 2);
-        let MyPos = this.progressItemStartPosition(index);
-        let res = NexPos - MyPos;
+        const NexPos = this.progressItemStartPosition(index + 2);
+        const MyPos = this.progressItemStartPosition(index);
+        const res = NexPos - MyPos;
         return res - this.handlerWidth;
       }
     }
@@ -296,8 +296,8 @@ export class RangeSliderComponent implements OnInit {
 
   getConstraints(index) {
     return {
-      left: `${this.leftConstr(index)}px`,
-      width: `${this.rightConstr(index)}px`
+      left: `${this.leftConstrain(index)}px`,
+      width: `${this.rightConstrain(index)}px`
     };
   }
 
@@ -342,12 +342,11 @@ export class RangeSliderComponent implements OnInit {
     const newValue = +event.target.value;
     const differ = +this.oldValue - +newValue;
 
-    console.log('differ', differ);
+    const resultOfEqualCalc = this.equalCalculaction(index, differ);
 
-    const resultOfComunism = this.comunismCalculaction(index, differ);
+    this.totalSum = this.returnSumOfArray(resultOfEqualCalc);
 
-    this.totalSum = this.returnSumOfArray(resultOfComunism);
-    this.itemsData = resultOfComunism.map(item => {
+    this.itemsData = resultOfEqualCalc.map(item => {
       return {
         title: item.title,
         ByNumber: +item.ByNumber,
@@ -361,11 +360,4 @@ export class RangeSliderComponent implements OnInit {
       return +sum + current.ByNumber;
     }, 0);
   }
-
-  returnSumOfCountries() {
-    return this.itemsData.reduce((sum, current) => {
-      return +sum + +current.ByNumber;
-    }, 0);
-  }
-
 }

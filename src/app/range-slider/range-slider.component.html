@@ -1,6 +1,6 @@
 <div class="component_wrapper">
   <div class="Range-Slider" [ngStyle]="getTotalWidthSlider()">
-    <h3>{{returnSumOfCountries()}}</h3>
+
     <div class="Range-Slider__total-section">
       <p class="Range-Slider__total-text">
         <strong>Financial Advisory</strong><span>client service fee</span>
@@ -49,8 +49,6 @@
                  #ttt="ngModel"
                 (focus)="countryFocusIn($event)"
                 (change)="onChangeCountryValue(ttt, index, $event)">
-
-          <!-- <span style="font-size: 8px">{{country.ByPersentage}}%</span>-->
         </div>
       </ng-container>
     </div>

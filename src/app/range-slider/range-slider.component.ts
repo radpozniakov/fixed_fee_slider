@@ -360,4 +360,8 @@ export class RangeSliderComponent implements OnInit {
       return +sum + current.ByNumber;
     }, 0);
   }
+
+  validation(field: HTMLInputElement) {
+    field.value = field.value.replace(/\D/, "");
+  }
 }

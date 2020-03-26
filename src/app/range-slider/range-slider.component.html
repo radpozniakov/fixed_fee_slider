@@ -4,7 +4,7 @@
     <div class="Range-Slider__total-section">
       <p class="Range-Slider__total-text">
         <strong>Financial Advisory</strong><span>client service fee</span>
-        <input class="Range-Slider__total-input" type="text" [(ngModel)]="totalSum" #totalInput="ngModel" (change)="onTotalChange(totalInput)">
+        <input class="Range-Slider__total-input" (keyup)="validation($event.target)" type="text" [(ngModel)]="totalSum" #totalInput="ngModel" (change)="onTotalChange(totalInput)">
       </p>
     </div>
 
@@ -48,6 +48,7 @@
                  [(ngModel)]="country.ByNumber"
                  #ttt="ngModel"
                 (focus)="countryFocusIn($event)"
+                (keyup)="validation($event.target)"
                 (change)="onChangeCountryValue(ttt, index, $event)">
         </div>
       </ng-container>

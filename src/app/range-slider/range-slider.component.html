@@ -1,6 +1,10 @@
 <div class="component_wrapper">
   <div class="Range-Slider" [ngStyle]="getTotalWidthSlider()">
 
+    <svg style="position: absolute; top: -99999%" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <svg viewBox="0 0 11 14" id="lock" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.5 5.84V4.25c0-.67-.23-1.23-.7-1.7h-.02a2.26 2.26 0 00-1.69-.71c-.67 0-1.24.23-1.72.71a2.3 2.3 0 00-.69 1.7v1.59H7.5zm2.38 7.41a.9.9 0 01-.63.25H.93a.97.97 0 01-.64-.24l-.01-.01-.02-.01a.9.9 0 01-.26-.65V6.75a.9.9 0 01.26-.65l.02-.01.01-.01a.97.97 0 01.55-.24V4.25c0-1.17.42-2.19 1.24-3.01A4.12 4.12 0 015.09 0C6.26 0 7.28.42 8.1 1.24a4.12 4.12 0 011.24 3.01v1.6c.2.01.39.1.54.24.2.17.3.4.3.66v5.84c0 .26-.1.5-.3.66zm-8.04-1.59v-4h6.5v4h-6.5z" clip-rule="evenodd"/></svg>
+    </svg>
+
     <div class="Range-Slider__total-section">
       <p class="Range-Slider__total-text">
         <strong>Financial Advisory</strong><span>client service fee</span>
@@ -30,28 +34,60 @@
           <div *ngFor="let line of _progressLine; let index = index"
           [ngStyle]="getStyleProgress(index)"
           #progressLine
-            class="Range-Slider__slider-progress color_{{index + 1}}">
-            <p class="Range-Slider__slider-progress-percentage">{{this.itemsData[index].ByPersentage | number:'1.1-2'}}%</p>
+            class="Range-Slider__slider-progress">
+
+          <p class="Range-Slider__slider-progress-percentage noselect">{{this.itemsData[index].ByPersentage | number:'1.1-2'}}%</p>
+
+          <div class="Range-Slider__slider-progress-status-wrapper color_{{index + 1}}">
+              <div *ngIf="itemsData[index].locked"  class="Range-Slider__slider-progress-status">
+                  <div class="Range-Slider__slider-progress-lock-icon color_{{index + 1}}"></div>
+              </div>
           </div>
+         </div>
         </div>
       </div>
     </div>
+
+
     <div class="Range-Slider__items-section">
-      <ng-container *ngFor="let item of data">
-        <div class="Range-Slider__item" *ngFor="let country of itemsData; let index = index">
-          <label class="Range-Slider__item-label">
-            <span class="Range-Slider__item-label-indicator color_{{index + 1}}"></span>
-            <span class="Range-Slider__item-label-text">{{country.title}}</span>
-          </label>
-          <input class="Range-Slider__item-input"
-                 type="text"
-                 [(ngModel)]="country.ByNumber"
-                 #ttt="ngModel"
-                (focus)="countryFocusIn($event)"
-                (keyup)="validation($event.target)"
-                (change)="onChangeCountryValue(ttt, index, $event)">
-        </div>
-      </ng-container>
+
+        <ng-container *ngFor="let item of data">
+            <div class="Range-Slider__item" *ngFor="let country of itemsData; let index = index">
+                <label class="Range-Slider__item-label" (click)="lockSwitcher($event, index)">
+
+                    <span *ngIf="!country.locked && !country.empty" class="Range-Slider__item-label-indicator color_{{index + 1}}"></span>
+
+                    <span *ngIf="country.locked" class="Range-Slider__item-label-lock-status">
+                        <svg class="icon"><use style="fill: {{colors[index]}}" xlink:href="#lock"></use></svg>
+                    </span>
+
+                    <span class="noselect
+                                 Range-Slider__item-label-text
+                                 {{(country.locked || country.empty) && 'Range-Slider__item-label-text_disable' }}
+                                 {{!country.empty && 'Range-Slider__item-label-text_clickable' }}
+                                ">{{country.title}}</span>
+                </label>
+                <div lass="Range-Slider__item-input-wrapper">
+
+                    <input *ngIf="!country.empty" class="Range-Slider__item-input"
+                           type="text"
+                           [(ngModel)]="country.ByNumber"
+                           #ttt="ngModel"
+                           (focus)="countryFocusIn($event)"
+                           (keyup)="validation($event.target)"
+                           (change)="onChangeCountryValue(ttt, index, $event)" [disabled]="country.locked">
+
+                    <input *ngIf="country.empty" class="Range-Slider__item-input"
+                           type="text"
+                           value="N/A"
+                           disabled>
+
+                    <span  *ngIf="!country.empty" class="Range-Slider__item-input-unit noselect">K</span>
+                </div>
+            </div>
+        </ng-container>
+
+
     </div>
   </div>
 </div>

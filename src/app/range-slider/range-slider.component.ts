@@ -24,6 +24,19 @@ export class RangeSliderComponent implements OnInit {
     left: true,
     right: true
   };
+
+  colors = [
+   '#C4D600',
+   '#72BDE8',
+   '#75C165',
+   '#4098BE',
+   '#FFCD00',
+   '#ED8B00',
+   '#DA291C',
+   '#012169',
+   '#BBBCBC'
+  ];
+
   _data = [];
   _progressLine = [];
   freaze = [];
@@ -89,21 +102,22 @@ export class RangeSliderComponent implements OnInit {
               title: item.title,
               ByNumber: withCompensation,
               ByPersentage: (withCompensation / this.totalSum) * 100,
+              empty: item.empty,
+              locked: item.locked
             };
           } else {
             return {
               title: item.title,
               ByNumber: +item.ByNumber,
               ByPersentage: (item.ByNumber / this.totalSum) * 100,
+              empty: item.empty,
+              locked: item.locked
             };
           }
         });
       this.posX = event.x;
     }
   }
-
-
-
 
   checkEdge(event) {
     // this.edge = event;
@@ -122,21 +136,27 @@ export class RangeSliderComponent implements OnInit {
           return {
             title: item.title,
             ByNumber: +item.ByNumber,
-            ByPersentage: 0
+            ByPersentage: 0,
+            empty: item.empty,
+            locked: item.locked
           };
         } else if (indexMap === index) {
           const numb = this.freaze[index] ? item.ByNumber - value : +item.ByNumber;
           return {
             title: item.title,
             ByNumber: +numb.toFixed(2),
-            ByPersentage: 0
+            ByPersentage: 0,
+            empty: item.empty,
+            locked: item.locked
           };
         } else {
           const resNumber = +item.ByNumber + -(-PositiveDifference);
           return {
             title: item.title,
             ByNumber: resNumber,
-            ByPersentage: 0
+            ByPersentage: 0,
+            empty: item.empty,
+            locked: item.locked
           };
         }
       });
@@ -152,21 +172,27 @@ export class RangeSliderComponent implements OnInit {
             return {
               title: item.title,
               ByNumber: numberItem,
-              ByPersentage: 0
+              ByPersentage: 0,
+              empty: item.empty,
+              locked: item.locked
             };
           } else if (indexMap === indexElement) {
             const numb = freeze[index] ? item.ByNumber - value : +item.ByNumber;
             return {
               title: item.title,
               ByNumber: numb,
-              ByPersentage: 0
+              ByPersentage: 0,
+              empty: item.empty,
+              locked: item.locked
             };
           } else {
             if (numberItem <= 0) {
               return {
                 title: item.title,
                 ByNumber: 0,
-                ByPersentage: 0
+                ByPersentage: 0,
+                empty: item.empty,
+                locked: item.locked
               };
             } else {
               if (minusAmount) {
@@ -181,13 +207,17 @@ export class RangeSliderComponent implements OnInit {
                 return {
                   title: item.title,
                   ByNumber: 0,
-                  ByPersentage: 0
+                  ByPersentage: 0,
+                  empty: item.empty,
+                  locked: item.locked
                 };
               } else {
                 return {
                   title: item.title,
                   ByNumber: +result.toFixed(2),
-                  ByPersentage: 0
+                  ByPersentage: 0,
+                  empty: item.empty,
+                  locked: item.locked
                 };
               }
             }
@@ -210,7 +240,9 @@ export class RangeSliderComponent implements OnInit {
        return {
          title: item.title,
          ByNumber: +item.ByNumber,
-         ByPersentage: 0
+         ByPersentage: 0,
+         empty: item.empty,
+         locked: item.locked
         };
       });
     }
@@ -231,7 +263,9 @@ export class RangeSliderComponent implements OnInit {
       this.itemsData.push({
         ByPersentage: (item.value / totalNumber) * 100,
         ByNumber: item.value,
-        title: item.title
+        title: item.title,
+        empty: item.empty,
+        locked: item.locked
       });
     });
   }
@@ -329,7 +363,9 @@ export class RangeSliderComponent implements OnInit {
       return {
         ByPersentage: item.ByPersentage,
         ByNumber: item.ByPersentage * this.totalSum / 100,
-        title: item.title
+        title: item.title,
+        empty: item.empty,
+        locked: item.locked
       };
     });
   }
@@ -351,6 +387,8 @@ export class RangeSliderComponent implements OnInit {
         title: item.title,
         ByNumber: +item.ByNumber,
         ByPersentage: (item.ByNumber / this.totalSum) * 100,
+        empty: item.empty,
+        locked: item.locked
       };
     });
   }
@@ -363,5 +401,20 @@ export class RangeSliderComponent implements OnInit {
 
   validation(field: HTMLInputElement) {
     field.value = field.value.replace(/\D/, "");
+  }
+
+  lockSwitcher(event, index) {
+    if (!this.itemsData[index].empty) {
+      this.itemsData = this.itemsData.map((item, Mapindex) => {
+        return {
+          title: item.title,
+          ByNumber: +item.ByNumber,
+          ByPersentage: item.ByPersentage,
+          empty: item.empty,
+          locked: index === Mapindex ? !item.locked : item.locked
+        };
+      });
+    }
+
   }
 }

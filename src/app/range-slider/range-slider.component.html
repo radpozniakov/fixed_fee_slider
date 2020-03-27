@@ -19,14 +19,17 @@
         >
           <div class="range_handler" [lockAxis]="lockAxis" *ngIf="index + 1 !== itemsData.length"
             (started)="onStart($event, index)"
+
             (stopped)="onStop($event, index)"
             (endOffset)="onMoveEnd($event, index)"
             (movingOffset)="onMoving($event,index)"
             [bounds]="getRefEl(index,country)"
             [inBounds]="inBounds"
             (edge)="checkEdge($event)"
-          [ngStyle]="stylePositionHandler(index)"
-            ngDraggable>
+            [ngStyle]="stylePositionHandler(index)"
+            [ngDraggable]="isDraggable(index)">
+
+
             <span style="position: absolute; font-size: 0">{{el.title}}</span>
           </div>
         </div>
@@ -48,9 +51,7 @@
       </div>
     </div>
 
-
     <div class="Range-Slider__items-section">
-
         <ng-container *ngFor="let item of data">
             <div class="Range-Slider__item" *ngFor="let country of itemsData; let index = index">
                 <label class="Range-Slider__item-label" (click)="lockSwitcher($event, index)">
@@ -86,7 +87,6 @@
                 </div>
             </div>
         </ng-container>
-
 
     </div>
   </div>

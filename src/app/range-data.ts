@@ -11,13 +11,13 @@ export const data = [
         },
         {
           title: "Canada",
-          value: 0,
-          empty: true,
+          value: 200,
+          empty: false,
           locked: false
         },
         {
           title: "US",
-          value: 400,
+          value: 200,
           empty: false,
           locked: false
         },

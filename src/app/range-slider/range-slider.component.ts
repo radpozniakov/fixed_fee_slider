@@ -128,7 +128,16 @@ export class RangeSliderComponent implements OnInit {
     let minusAmount = 0;
 
     if (value > 0) {
-      const homMuchAfterMe = this.itemsData.length - index - 1;
+      //const homMuchAfterMe = this.itemsData.length - index - 1;
+
+
+      const homMuchAfterMe = this.itemsData.filter((item, indexFilter) => {
+          return indexFilter > index && item.locked === false;
+      }).length;
+
+      //console.log('homMuchAfterMe', homMuchAfterMe);
+      //console.log('homMuchAfterMe ttt', ttt);
+
       const PositiveDifference = value / homMuchAfterMe;
 
       arrforReturn = this.itemsData.map((item, indexMap) => {
@@ -150,23 +159,43 @@ export class RangeSliderComponent implements OnInit {
             locked: item.locked
           };
         } else {
-          const resNumber = +item.ByNumber + -(-PositiveDifference);
-          return {
-            title: item.title,
-            ByNumber: resNumber,
-            ByPersentage: 0,
-            empty: item.empty,
-            locked: item.locked
-          };
+          if (!item.locked) {
+            const resNumber = +item.ByNumber + -(-PositiveDifference);
+            return {
+              title: item.title,
+              ByNumber: resNumber,
+              ByPersentage: 0,
+              empty: item.empty,
+              locked: item.locked
+            };
+          } else {
+            return {
+              title: item.title,
+              ByNumber: item.ByNumber,
+              ByPersentage: item.ByPersentage,
+              empty: item.empty,
+              locked: item.locked
+            };
+          }
         }
       });
     } else if (value < 0) {
+      const howMuchAfterMeWithZero = this.itemsData.filter((item, filterIndex) => {
+        if (filterIndex > index && (item.ByNumber === 0 || item.locked ===  true ) ) {
+          return true;
+        }
+      }).length;
+
+
       function calcMinus(DataArr, indexElement, freeze) {
         return DataArr.map((item, indexMap) => {
           let result = 0;
           const numberItem = +item.ByNumber;
           let partOfValue = value / ((DataArr.length - 1 - indexElement) - howMuchAfterMeWithZero);
           partOfValue = -partOfValue;
+
+
+
 
           if (indexMap < indexElement) {
             return {
@@ -186,24 +215,8 @@ export class RangeSliderComponent implements OnInit {
               locked: item.locked
             };
           } else {
-            if (numberItem <= 0) {
-              return {
-                title: item.title,
-                ByNumber: 0,
-                ByPersentage: 0,
-                empty: item.empty,
-                locked: item.locked
-              };
-            } else {
-              if (minusAmount) {
-                result = numberItem - partOfValue;
-                result = result - minusAmount;
-                minusAmount = 0;
-              } else {
-                result = numberItem - partOfValue;
-              }
-              if (result <= 0) {
-                minusAmount = -result;
+            if (!item.locked) {
+              if (numberItem <= 0) {
                 return {
                   title: item.title,
                   ByNumber: 0,
@@ -212,23 +225,45 @@ export class RangeSliderComponent implements OnInit {
                   locked: item.locked
                 };
               } else {
-                return {
-                  title: item.title,
-                  ByNumber: +result.toFixed(2),
-                  ByPersentage: 0,
-                  empty: item.empty,
-                  locked: item.locked
-                };
+                if (minusAmount) {
+                  result = numberItem - partOfValue;
+                  result = result - minusAmount;
+                  minusAmount = 0;
+                } else {
+                  result = numberItem - partOfValue;
+                }
+                if (result <= 0) {
+                  minusAmount = -result;
+                  return {
+                    title: item.title,
+                    ByNumber: 0,
+                    ByPersentage: 0,
+                    empty: item.empty,
+                    locked: item.locked
+                  };
+                } else {
+                  return {
+                    title: item.title,
+                    ByNumber: +result.toFixed(2),
+                    ByPersentage: 0,
+                    empty: item.empty,
+                    locked: item.locked
+                  };
+                }
               }
+            } else {
+              return {
+                title: item.title,
+                ByNumber: item.ByNumber,
+                ByPersentage: item.ByPersentage,
+                empty: item.empty,
+                locked: item.locked
+              };
             }
           }
         });
       }
-      const howMuchAfterMeWithZero = this.itemsData.filter((item, filterIndex) => {
-        if (filterIndex > index && item.ByNumber === 0) {
-          return true;
-        }
-      }).length;
+
       arrforReturn = calcMinus(this.itemsData, index, this.freaze);
 
       if (minusAmount) {
@@ -415,6 +450,22 @@ export class RangeSliderComponent implements OnInit {
         };
       });
     }
+  }
 
+  isDraggable(index) {
+    if (this.itemsData[index].locked) {
+      return false;
+    } else {
+      const fff =  this.itemsData.filter((item, indexFilter) => {
+        return indexFilter > index && item.locked === true;
+      }).length;
+
+      const rr = this.itemsData.length - index - fff - 1;
+      if (rr) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 }

@@ -85,6 +85,7 @@
 
                     <span  *ngIf="!country.empty" class="Range-Slider__item-input-unit noselect">K</span>
                 </div>
+                <button *ngIf="index + 1 === itemsData.length" (click)="openOtherSettings()" class="Range-Slider__item-modal-link">{{country.title}} settings</button>
             </div>
         </ng-container>
 

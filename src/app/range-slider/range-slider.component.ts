@@ -468,4 +468,8 @@ export class RangeSliderComponent implements OnInit {
       }
     }
   }
+
+  openOtherSettings() {
+    console.log('opened other settings');
+  }
 }

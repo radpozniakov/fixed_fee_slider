@@ -223,6 +223,17 @@
       visibility: hidden;
     }
   }
+  &__item-modal-link {
+    font-size: 12px;
+    padding-right: 12px;
+    color: #00A3E0;
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    margin-top: 6px;
+    outline: none;
+    cursor: pointer;
+  }
 }
 
 .range_handler {

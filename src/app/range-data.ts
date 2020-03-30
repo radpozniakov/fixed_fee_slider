@@ -1,30 +1,30 @@
 export const data = [
     {
-      total: 1000,
+      total: 3000,
       width: 900,
       coutry: [
         {
           title: "Australia (Lead)",
-          value: 200,
+          value: 1500,
           empty: false,
           locked: false
         },
         {
           title: "Canada",
-          value: 200,
+          value: 1000,
           empty: false,
           locked: false
         },
         {
           title: "US",
-          value: 200,
+          value: 300,
           empty: false,
           locked: false
         },
         {
           title: "Belgium",
-          value: 200,
-          empty: false,
+          value: 0,
+          empty: true,
           locked: false
         },
         {

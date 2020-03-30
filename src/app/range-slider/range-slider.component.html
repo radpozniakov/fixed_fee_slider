@@ -14,38 +14,46 @@
 
     <div class="Range-Slider__slider-section">
       <div class="Range-Slider__slider-element">
-        <div class="range_restrictions color_{{index + 1}} top_{{index + 1}}" #country *ngFor="let el of _data; let index = index"
-        [ngStyle]="getConstraints(index)"
-        >
-          <div class="range_handler" [lockAxis]="lockAxis" *ngIf="index + 1 !== itemsData.length"
-            (started)="onStart($event, index)"
-
-            (stopped)="onStop($event, index)"
-            (endOffset)="onMoveEnd($event, index)"
-            (movingOffset)="onMoving($event,index)"
-            [bounds]="getRefEl(index,country)"
-            [inBounds]="inBounds"
-            (edge)="checkEdge($event)"
-            [ngStyle]="stylePositionHandler(index)"
-            [ngDraggable]="isDraggable(index)">
 
 
-            <span style="position: absolute; font-size: 0">{{el.title}}</span>
-          </div>
-        </div>
-        <div class="Range-Slider__slider-baseline">
-          <div *ngFor="let line of _progressLine; let index = index"
-          [ngStyle]="getStyleProgress(index)"
-          #progressLine
-            class="Range-Slider__slider-progress">
-
-          <p class="Range-Slider__slider-progress-percentage noselect">{{this.itemsData[index].ByPersentage | number:'1.1-2'}}%</p>
-
-          <div class="Range-Slider__slider-progress-status-wrapper color_{{index + 1}}">
-              <div *ngIf="itemsData[index].locked"  class="Range-Slider__slider-progress-status">
-                  <div class="Range-Slider__slider-progress-lock-icon color_{{index + 1}}"></div>
+          <div *ngFor="let el of _data; let index = index">
+              <div class="range_restrictions color_{{index + 1}} top_{{index + 1}}" #country
+                   [ngStyle]="getConstraints(index)" *ngIf="index  < tettt.length - 1">
+                  <div class="range_handler" [lockAxis]="lockAxis"
+                       (started)="onStart($event, index)"
+                       (stopped)="onStop($event, index)"
+                       (endOffset)="onMoveEnd($event, index)"
+                       (movingOffset)="onMoving($event,index)"
+                       [bounds]="getRefEl(index,country)"
+                       [inBounds]="inBounds"
+                       (edge)="checkEdge($event)"
+                       [ngStyle]="stylePositionHandler(index)"
+                       [ngDraggable]="isDraggable(index)">
+                      <span style="position: absolute; font-size: 0">{{el.title}}</span>
+                  </div>
               </div>
           </div>
+
+
+
+
+
+        <div class="Range-Slider__slider-baseline">
+
+
+         <div *ngFor="let line of _progressLine; let index = index">
+             <div *ngIf="line.empty !== true" [ngStyle]="getStyleProgress(index)"
+                   #progressLine
+                     class="Range-Slider__slider-progress">
+
+                 <p class="Range-Slider__slider-progress-percentage noselect">{{this.itemsData[index].ByPersentage | number:'1.1-2'}}%</p>
+
+                 <div class="Range-Slider__slider-progress-status-wrapper color_{{index + 1}}">
+                     <div *ngIf="itemsData[index].locked"  class="Range-Slider__slider-progress-status">
+                         <div class="Range-Slider__slider-progress-lock-icon color_{{index + 1}}"></div>
+                     </div>
+                 </div>
+             </div>
          </div>
         </div>
       </div>
@@ -83,7 +91,7 @@
                            value="N/A"
                            disabled>
 
-                    <span  *ngIf="!country.empty" class="Range-Slider__item-input-unit noselect">K</span>
+                    <span *ngIf="!country.empty" class="Range-Slider__item-input-unit noselect">K</span>
                 </div>
                 <button *ngIf="index + 1 === itemsData.length" (click)="openOtherSettings()" class="Range-Slider__item-modal-link">{{country.title}} settings</button>
             </div>

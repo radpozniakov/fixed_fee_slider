@@ -46,6 +46,8 @@ export class RangeSliderComponent implements OnInit {
 
   oldValue = 0;
 
+  tettt = [];
+
   handlerWidth = 12;
   totalWidth: number;
   totalSum: number;
@@ -59,7 +61,8 @@ export class RangeSliderComponent implements OnInit {
         this.totalWidth = element.width;
         this.totalSum = element.total;
         this._progressLine = element.coutry;
-        this._data = element.coutry.slice(0, -1);
+        this._data = element.coutry;
+        this.tettt = element.coutry.filter(item => item.empty !== true);
       });
     }
     this.calcRealWidth(this._progressLine, this.totalWidth);
@@ -86,6 +89,7 @@ export class RangeSliderComponent implements OnInit {
   }
 
   onMoving(event, index) {
+
     if (this.posX !== event.x) {
         const differ = event.x - this.posX;
         const newPercange = (differ / this.realWidth) * 100;
@@ -132,8 +136,9 @@ export class RangeSliderComponent implements OnInit {
 
 
       const homMuchAfterMe = this.itemsData.filter((item, indexFilter) => {
-          return indexFilter > index && item.locked === false;
+          return indexFilter > index && item.locked === false && item.empty === false;
       }).length;
+
 
       //console.log('homMuchAfterMe', homMuchAfterMe);
       //console.log('homMuchAfterMe ttt', ttt);
@@ -159,7 +164,15 @@ export class RangeSliderComponent implements OnInit {
             locked: item.locked
           };
         } else {
-          if (!item.locked) {
+          if (item.locked === true || item.empty === true) {
+            return {
+              title: item.title,
+              ByNumber: item.ByNumber,
+              ByPersentage: item.ByPersentage,
+              empty: item.empty,
+              locked: item.locked
+            };
+          } else {
             const resNumber = +item.ByNumber + -(-PositiveDifference);
             return {
               title: item.title,
@@ -168,20 +181,12 @@ export class RangeSliderComponent implements OnInit {
               empty: item.empty,
               locked: item.locked
             };
-          } else {
-            return {
-              title: item.title,
-              ByNumber: item.ByNumber,
-              ByPersentage: item.ByPersentage,
-              empty: item.empty,
-              locked: item.locked
-            };
           }
         }
       });
     } else if (value < 0) {
       const howMuchAfterMeWithZero = this.itemsData.filter((item, filterIndex) => {
-        if (filterIndex > index && (item.ByNumber === 0 || item.locked ===  true ) ) {
+        if (filterIndex > index && (item.ByNumber === 0 || item.locked ===  true || item.empty === true ) ) {
           return true;
         }
       }).length;
@@ -193,10 +198,6 @@ export class RangeSliderComponent implements OnInit {
           const numberItem = +item.ByNumber;
           let partOfValue = value / ((DataArr.length - 1 - indexElement) - howMuchAfterMeWithZero);
           partOfValue = -partOfValue;
-
-
-
-
           if (indexMap < indexElement) {
             return {
               title: item.title,
@@ -215,7 +216,15 @@ export class RangeSliderComponent implements OnInit {
               locked: item.locked
             };
           } else {
-            if (!item.locked) {
+            if (item.locked === true || item.empty === true) {
+              return {
+                title: item.title,
+                ByNumber: item.ByNumber,
+                ByPersentage: item.ByPersentage,
+                empty: item.empty,
+                locked: item.locked
+              };
+            } else {
               if (numberItem <= 0) {
                 return {
                   title: item.title,
@@ -251,14 +260,6 @@ export class RangeSliderComponent implements OnInit {
                   };
                 }
               }
-            } else {
-              return {
-                title: item.title,
-                ByNumber: item.ByNumber,
-                ByPersentage: item.ByPersentage,
-                empty: item.empty,
-                locked: item.locked
-              };
             }
           }
         });
@@ -286,8 +287,10 @@ export class RangeSliderComponent implements OnInit {
   }
 
   calcRealWidth(items, width) {
-    if (items.length > 0 && items.length !== 1) {
-      this.realWidth = width - (items.length - 1) * this.handlerWidth;
+    const filledItems = items.filter(item => item.empty !== true);
+
+    if (filledItems.length > 1) {
+      this.realWidth = width - (filledItems.length - 1) * this.handlerWidth;
     } else {
       this.realWidth = width;
     }
@@ -306,7 +309,7 @@ export class RangeSliderComponent implements OnInit {
   }
 
   progressItemWidth(index) {
-    return (this.itemsData[index].ByPersentage * this.realWidth) / 100;
+    return this.itemsData[index].empty === true ? 0 : (this.itemsData[index].ByPersentage * this.realWidth) / 100;
   }
 
   progressItemStartPosition(index) {
@@ -314,7 +317,9 @@ export class RangeSliderComponent implements OnInit {
     let sum = 0;
     let i = 0;
     while (i < index) {
-      sum = sum + this.progressItemWidth(i) + this.handlerWidth;
+      if (this.itemsData[i].empty !== true) {
+        sum = sum + this.progressItemWidth(i) + this.handlerWidth;
+      }
       i++;
     }
     return sum;
@@ -328,16 +333,11 @@ export class RangeSliderComponent implements OnInit {
   }
 
   getPositionHandler(index) {
-    let sumPos = 0;
-    let i = 0;
-    while (i < index + 1) {
-      sumPos =
-        sumPos +
-        (this.realWidth * this.itemsData[i].ByPersentage) / 100 +
-        this.handlerWidth;
-      i++;
-    }
-    return sumPos - this.handlerWidth;
+    let left = this.progressItemStartPosition(index);
+    let width = this.progressItemWidth(index);
+    let position = left + width;
+
+    return position;
   }
 
   leftConstrain(index) {
@@ -349,19 +349,42 @@ export class RangeSliderComponent implements OnInit {
   }
 
   rightConstrain(index) {
-    if (index === this.itemsData.length - 2) {
-      return this.totalWidth - this.progressItemStartPosition(index);
-    } else {
-      if (index === 0) {
-        return (this.progressItemStartPosition(index + 2)) - this.handlerWidth;
-      } else {
-        const NexPos = this.progressItemStartPosition(index + 2);
-        const MyPos = this.progressItemStartPosition(index);
-        const res = NexPos - MyPos;
-        return res - this.handlerWidth;
+    console.log('index', index);
+    //просто узнать ширину элемента ограничителя
+    //если следующий пустой, переходи к следующему
+
+    let posHandl = 0;
+    let i = 0;
+
+    while (i < this.tettt.length) {
+      i++;
+      if( this.itemsData[index + i] && this.itemsData[index + i].empty === false) {
+         posHandl = this.getPositionHandler(index + i);
+         break;
+      }else{
+        posHandl = this.getPositionHandler(index);
       }
     }
-  }
+
+    // this.tettt.forEach((item, forEachindex) => {
+    //   if ( this.itemsData[forEachindex + 1].empty !== true) {
+    //     posHandl = this.getPositionHandler(forEachindex + 1);
+    //     break
+    //   }else{
+    //     posHandl = 0;
+    //   }
+    // });
+     return posHandl - this.progressItemStartPosition(index);
+
+
+
+
+  //   if(index === 1){
+  //     return this.getPositionHandler(index + 2) - this.progressItemStartPosition(index);
+  //   } else{
+  //     return this.getPositionHandler(index + 1) - this.progressItemStartPosition(index);
+  // }
+    }
 
   getConstraints(index) {
     return {
@@ -374,9 +397,15 @@ export class RangeSliderComponent implements OnInit {
     const startPosition = this.progressItemStartPosition(index);
     const handlerPosition = this.getPositionHandler(index);
     if (this.useHandle !== false) {
-      return { left: this.freaze[index] ? this.freaze[index] : handlerPosition - startPosition + "px" };
+      return {
+        left: this.freaze[index] ? this.freaze[index] : handlerPosition - startPosition + "px",
+        // display: this.itemsData[index].empty === true ? "none" : "block"
+      };
     } else {
-      return { left: handlerPosition - startPosition + "px" };
+      return {
+        left: handlerPosition - startPosition + "px",
+        // display: this.itemsData[index].empty === true ? "none" : "block"
+      };
     }
   }
 
@@ -432,6 +461,10 @@ export class RangeSliderComponent implements OnInit {
     return arr.reduce((sum, current) => {
       return +sum + current.ByNumber;
     }, 0);
+  }
+
+  worksDataItems(data) {
+    return data((item) => item.emty !== true);
   }
 
   validation(field: HTMLInputElement) {

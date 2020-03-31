@@ -15,15 +15,14 @@
     <div class="Range-Slider__slider-section">
       <div class="Range-Slider__slider-element">
 
-
           <div *ngFor="let el of _data; let index = index">
               <div class="range_restrictions color_{{index + 1}} top_{{index + 1}}" #country
-                   [ngStyle]="getConstraints(index)" *ngIf="index  < tettt.length - 1">
+                   [ngStyle]="getConstraints(index)" *ngIf="canIdenderhandler(index)">
                   <div class="range_handler" [lockAxis]="lockAxis"
                        (started)="onStart($event, index)"
                        (stopped)="onStop($event, index)"
                        (endOffset)="onMoveEnd($event, index)"
-                       (movingOffset)="onMoving($event,index)"
+                       (movingOffset)="onMoving($event, index, country)"
                        [bounds]="getRefEl(index,country)"
                        [inBounds]="inBounds"
                        (edge)="checkEdge($event)"
@@ -34,12 +33,7 @@
               </div>
           </div>
 
-
-
-
-
         <div class="Range-Slider__slider-baseline">
-
 
          <div *ngFor="let line of _progressLine; let index = index">
              <div *ngIf="line.empty !== true" [ngStyle]="getStyleProgress(index)"

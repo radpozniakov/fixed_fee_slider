@@ -1,38 +1,56 @@
 export const data = [
     {
-      total: 3000,
-      width: 900,
+      total: 24000,
+      width: 1232,
       coutry: [
         {
           title: "Australia (Lead)",
-          value: 1500,
+          value: 5280,
           empty: false,
           locked: false
         },
         {
           title: "Canada",
-          value: 1000,
+          value: 5040,
           empty: false,
           locked: false
         },
         {
           title: "US",
-          value: 300,
+          value: 4080,
           empty: false,
           locked: false
         },
         {
           title: "Belgium",
-          value: 0,
-          empty: true,
+          value: 6240,
+          empty: false,
           locked: false
         },
         {
-          title: "Other",
-          value: 200,
+          title: "Hong Kong",
+          value: 1200,
           empty: false,
           locked: false
-        }
+        },
+        {
+          title: "Brazil",
+          value: 1040,
+          empty: false,
+          locked: false
+        },
+        {
+          title: "Netherlands",
+          value: 600,
+          empty: false,
+          locked: false
+        },
+        {
+          title: "Mexico",
+          value: 520,
+          empty: false,
+          locked: false
+        },
       ]
     }
   ];

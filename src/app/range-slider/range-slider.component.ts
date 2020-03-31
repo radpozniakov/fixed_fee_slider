@@ -70,9 +70,11 @@ export class RangeSliderComponent implements OnInit {
   }
 
   onStart(event, index) {
+    console.log(`HHHHHH ${index}`, this.itemsData[index].title);
     this.useHandle = true;
     this.freaze[index] = this.getPositionHandler(index);
   }
+
   onStop(event, index) {
     this._data = this._data.map((item) => {
         return {
@@ -88,23 +90,66 @@ export class RangeSliderComponent implements OnInit {
     this.useHandle = false;
   }
 
-  onMoving(event, index) {
-
+  onMoving(event, index, cc) {
     if (this.posX !== event.x) {
+
+        let ffsv = this.itemsData.filter((filterItem, filterIndex) => {
+          return filterIndex > index && filterItem.empty === false && filterItem.locked === false && filterItem.ByNumber > 0
+        });
         const differ = event.x - this.posX;
+
+
+      if(this.posX > 0){
+        if (ffsv.length) {
+          const newPercange = (differ / this.realWidth) * 100;
+          const value = newPercange  * this.totalSum / 100;
+          const resultOfEqualCalc = this.equalCalculaction(index,  -value);
+
+          const SumOfNumbers = resultOfEqualCalc.reduce((sum, current) => {
+            return +sum + +current.ByNumber;
+          }, 0);
+
+          const difference = this.totalSum - SumOfNumbers;
+
+          this.itemsData = resultOfEqualCalc.map((item, indexMap) => {
+            if (index === indexMap) {
+              const withCompensation = +item.ByNumber + difference;
+              return {
+                title: item.title,
+                ByNumber: withCompensation < 0 ? 0 : withCompensation,
+                ByPersentage: (withCompensation / this.totalSum) * 100,
+                empty: item.empty,
+                locked: item.locked
+              };
+            } else {
+              return {
+                title: item.title,
+                ByNumber: +item.ByNumber,
+                ByPersentage: (item.ByNumber / this.totalSum) * 100,
+                empty: item.empty,
+                locked: item.locked
+              };
+            }
+          });
+          this.posX = event.x;
+        }
+      }else{
         const newPercange = (differ / this.realWidth) * 100;
         const value = newPercange  * this.totalSum / 100;
         const resultOfEqualCalc = this.equalCalculaction(index,  -value);
+
         const SumOfNumbers = resultOfEqualCalc.reduce((sum, current) => {
           return +sum + +current.ByNumber;
         }, 0);
+
         const difference = this.totalSum - SumOfNumbers;
+
         this.itemsData = resultOfEqualCalc.map((item, indexMap) => {
           if (index === indexMap) {
             const withCompensation = +item.ByNumber + difference;
             return {
               title: item.title,
-              ByNumber: withCompensation,
+              ByNumber: withCompensation < 0 ? 0 : withCompensation,
               ByPersentage: (withCompensation / this.totalSum) * 100,
               empty: item.empty,
               locked: item.locked
@@ -119,7 +164,12 @@ export class RangeSliderComponent implements OnInit {
             };
           }
         });
-      this.posX = event.x;
+        this.posX = event.x;
+      }
+
+
+
+
     }
   }
 
@@ -134,11 +184,9 @@ export class RangeSliderComponent implements OnInit {
     if (value > 0) {
       //const homMuchAfterMe = this.itemsData.length - index - 1;
 
-
       const homMuchAfterMe = this.itemsData.filter((item, indexFilter) => {
           return indexFilter > index && item.locked === false && item.empty === false;
       }).length;
-
 
       //console.log('homMuchAfterMe', homMuchAfterMe);
       //console.log('homMuchAfterMe ttt', ttt);
@@ -158,7 +206,7 @@ export class RangeSliderComponent implements OnInit {
           const numb = this.freaze[index] ? item.ByNumber - value : +item.ByNumber;
           return {
             title: item.title,
-            ByNumber: +numb.toFixed(2),
+            ByNumber: +numb < 0 ? 0 : +numb,
             ByPersentage: 0,
             empty: item.empty,
             locked: item.locked
@@ -348,43 +396,50 @@ export class RangeSliderComponent implements OnInit {
     }
   }
 
+
+
   rightConstrain(index) {
-    console.log('index', index);
-    //просто узнать ширину элемента ограничителя
-    //если следующий пустой, переходи к следующему
-
     let posHandl = 0;
-    let i = 0;
 
-    while (i < this.tettt.length) {
-      i++;
-      if( this.itemsData[index + i] && this.itemsData[index + i].empty === false) {
-         posHandl = this.getPositionHandler(index + i);
-         break;
-      }else{
-        posHandl = this.getPositionHandler(index);
+
+    let checkOthers = this.itemsData.filter((filterItem, filterIndex) => {
+      return filterIndex > index && filterItem.locked === false && filterItem.ByNumber > 0;
+    });
+
+    if (checkOthers.length) {
+      console.log('огонь на других', index, 'length', checkOthers);
+
+      let i = 1;
+      while (i <= this.itemsData.length) {
+
+        if ( this.itemsData[index + i] && this.itemsData[index + i].empty === false) {
+          //posHandl = this.getPositionHandler(index + i) + this.handlerWidth + 2;
+          posHandl = this.getPositionHandler(index + i);
+          break;
+        }
+        i++;
+      }
+
+      // if(!posHandl) {
+      //   console.log('огонь на других в себя', index);
+      //   posHandl = this.getPositionHandler(index + 1);
+      // }
+
+
+    }else{
+      //огонь на себя
+      if ( this.itemsData[index] && this.itemsData[index].empty === false) {
+
+        console.log('огонь на себя', index)
+        posHandl = this.getPositionHandler(index) + this.handlerWidth + 2;
       }
     }
 
-    // this.tettt.forEach((item, forEachindex) => {
-    //   if ( this.itemsData[forEachindex + 1].empty !== true) {
-    //     posHandl = this.getPositionHandler(forEachindex + 1);
-    //     break
-    //   }else{
-    //     posHandl = 0;
-    //   }
-    // });
      return posHandl - this.progressItemStartPosition(index);
 
-
-
-
-  //   if(index === 1){
-  //     return this.getPositionHandler(index + 2) - this.progressItemStartPosition(index);
-  //   } else{
-  //     return this.getPositionHandler(index + 1) - this.progressItemStartPosition(index);
-  // }
     }
+
+
 
   getConstraints(index) {
     return {
@@ -497,6 +552,23 @@ export class RangeSliderComponent implements OnInit {
       if (rr) {
         return true;
       } else {
+        return false;
+      }
+    }
+  }
+
+
+  canIdenderhandler(index) {
+    console.log('canIdenderhandler');
+    if (this.itemsData[index].empty === true) {
+      return false;
+    }else{
+      let fil = this.itemsData.filter((item, filterIndex) => {
+          return filterIndex > index && item.empty !== true;
+      }).length;
+      if(fil){
+        return true;
+      }else{
         return false;
       }
     }

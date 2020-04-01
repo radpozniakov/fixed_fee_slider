@@ -36,18 +36,12 @@ export class RangeSliderComponent implements OnInit {
    '#012169',
    '#BBBCBC'
   ];
-
   _data = [];
-  _progressLine = [];
   freaze = [];
   useHandle = false;
   lockAxis = "y";
   posX = 0;
-
   oldValue = 0;
-
-  tettt = [];
-
   handlerWidth = 12;
   totalWidth: number;
   totalSum: number;
@@ -60,22 +54,19 @@ export class RangeSliderComponent implements OnInit {
       this.data.forEach(element => {
         this.totalWidth = element.width;
         this.totalSum = element.total;
-        this._progressLine = element.coutry;
-        this._data = element.coutry;
-        this.tettt = element.coutry.filter(item => item.empty !== true);
+        this._data = element.items;
       });
     }
-    this.calcRealWidth(this._progressLine, this.totalWidth);
-    this.calculateItemData(this._progressLine, this.totalSum);
+    this.realWidth = this.calcRealWidth(this._data, this.totalWidth);
+    this.itemsData = this.calculateItemData(this._data, this.totalSum);
   }
 
   onStart(event, index) {
-    console.log(`HHHHHH ${index}`, this.itemsData[index].title);
     this.useHandle = true;
     this.freaze[index] = this.getPositionHandler(index);
   }
 
-  onStop(event, index) {
+  onStop() {
     this._data = this._data.map((item) => {
         return {
           title: Date.now(),
@@ -86,110 +77,73 @@ export class RangeSliderComponent implements OnInit {
     this.freaze = [];
   }
 
-  onMoveEnd(event, index) {
+  onMoveEnd() {
     this.useHandle = false;
   }
 
-  onMoving(event, index, cc) {
-    if (this.posX !== event.x) {
+  calcInMoving(differ, index) {
+    const newPercange = (differ / this.realWidth) * 100;
+    const value = newPercange  * this.totalSum / 100;
+    const resultOfEqualCalc = this.equalCalculaction(index,  -value);
 
-        let ffsv = this.itemsData.filter((filterItem, filterIndex) => {
-          return filterIndex > index && filterItem.empty === false && filterItem.locked === false && filterItem.ByNumber > 0
-        });
-        const differ = event.x - this.posX;
+    const SumOfNumbers = resultOfEqualCalc.reduce((sum, current) => {
+      return +sum + +current.ByNumber;
+    }, 0);
 
-
-      if(this.posX > 0){
-        if (ffsv.length) {
-          const newPercange = (differ / this.realWidth) * 100;
-          const value = newPercange  * this.totalSum / 100;
-          const resultOfEqualCalc = this.equalCalculaction(index,  -value);
-
-          const SumOfNumbers = resultOfEqualCalc.reduce((sum, current) => {
-            return +sum + +current.ByNumber;
-          }, 0);
-
-          const difference = this.totalSum - SumOfNumbers;
-
-          this.itemsData = resultOfEqualCalc.map((item, indexMap) => {
-            if (index === indexMap) {
-              const withCompensation = +item.ByNumber + difference;
-              return {
-                title: item.title,
-                ByNumber: withCompensation < 0 ? 0 : withCompensation,
-                ByPersentage: (withCompensation / this.totalSum) * 100,
-                empty: item.empty,
-                locked: item.locked
-              };
-            } else {
-              return {
-                title: item.title,
-                ByNumber: +item.ByNumber,
-                ByPersentage: (item.ByNumber / this.totalSum) * 100,
-                empty: item.empty,
-                locked: item.locked
-              };
-            }
-          });
-          this.posX = event.x;
-        }
-      }else{
-        const newPercange = (differ / this.realWidth) * 100;
-        const value = newPercange  * this.totalSum / 100;
-        const resultOfEqualCalc = this.equalCalculaction(index,  -value);
-
-        const SumOfNumbers = resultOfEqualCalc.reduce((sum, current) => {
-          return +sum + +current.ByNumber;
-        }, 0);
-
-        const difference = this.totalSum - SumOfNumbers;
-
-        this.itemsData = resultOfEqualCalc.map((item, indexMap) => {
-          if (index === indexMap) {
-            const withCompensation = +item.ByNumber + difference;
-            return {
-              title: item.title,
-              ByNumber: withCompensation < 0 ? 0 : withCompensation,
-              ByPersentage: (withCompensation / this.totalSum) * 100,
-              empty: item.empty,
-              locked: item.locked
-            };
-          } else {
-            return {
-              title: item.title,
-              ByNumber: +item.ByNumber,
-              ByPersentage: (item.ByNumber / this.totalSum) * 100,
-              empty: item.empty,
-              locked: item.locked
-            };
-          }
-        });
-        this.posX = event.x;
+    const difference = this.totalSum - SumOfNumbers;
+    return resultOfEqualCalc.map((item, indexMap) => {
+      if (index === indexMap) {
+        const withCompensation = +item.ByNumber + difference;
+        return {
+          title: item.title,
+          ByNumber: withCompensation < 0 ? 0 : withCompensation,
+          ByPersentage: (withCompensation / this.totalSum) * 100,
+          empty: item.empty,
+          locked: item.locked,
+          settings: item.settings
+        };
+      } else {
+        return {
+          title: item.title,
+          ByNumber: +item.ByNumber,
+          ByPersentage: (item.ByNumber / this.totalSum) * 100,
+          empty: item.empty,
+          locked: item.locked,
+          settings: item.settings
+        };
       }
+    });
+  }
 
+  onMoving(event, index) {
+    if (this.posX !== event.x) {
+      const activeItemsAhead = this.itemsData.filter((filterItem, filterIndex) => {
+        return filterIndex > index && filterItem.empty === false && filterItem.locked === false && filterItem.ByNumber > 0
+      });
 
+      const differ = event.x - this.posX;
 
-
+      if (this.posX > 0) {
+        if (activeItemsAhead.length) {
+          this.itemsData = this.calcInMoving(differ, index);
+        }
+      } else {
+        this.itemsData = this.calcInMoving(differ, index);
+      }
+      this.posX = event.x;
     }
   }
 
-  checkEdge(event) {
-    // this.edge = event;
-  }
+  checkEdge(event) {}
 
   equalCalculaction(index, value) {
     let arrforReturn;
     let minusAmount = 0;
 
     if (value > 0) {
-      //const homMuchAfterMe = this.itemsData.length - index - 1;
-
       const homMuchAfterMe = this.itemsData.filter((item, indexFilter) => {
           return indexFilter > index && item.locked === false && item.empty === false;
       }).length;
-
-      //console.log('homMuchAfterMe', homMuchAfterMe);
-      //console.log('homMuchAfterMe ttt', ttt);
 
       const PositiveDifference = value / homMuchAfterMe;
 
@@ -200,7 +154,8 @@ export class RangeSliderComponent implements OnInit {
             ByNumber: +item.ByNumber,
             ByPersentage: 0,
             empty: item.empty,
-            locked: item.locked
+            locked: item.locked,
+            settings: item.settings
           };
         } else if (indexMap === index) {
           const numb = this.freaze[index] ? item.ByNumber - value : +item.ByNumber;
@@ -209,7 +164,8 @@ export class RangeSliderComponent implements OnInit {
             ByNumber: +numb < 0 ? 0 : +numb,
             ByPersentage: 0,
             empty: item.empty,
-            locked: item.locked
+            locked: item.locked,
+            settings: item.settings
           };
         } else {
           if (item.locked === true || item.empty === true) {
@@ -218,7 +174,8 @@ export class RangeSliderComponent implements OnInit {
               ByNumber: item.ByNumber,
               ByPersentage: item.ByPersentage,
               empty: item.empty,
-              locked: item.locked
+              locked: item.locked,
+              settings: item.settings
             };
           } else {
             const resNumber = +item.ByNumber + -(-PositiveDifference);
@@ -227,7 +184,8 @@ export class RangeSliderComponent implements OnInit {
               ByNumber: resNumber,
               ByPersentage: 0,
               empty: item.empty,
-              locked: item.locked
+              locked: item.locked,
+              settings: item.settings
             };
           }
         }
@@ -238,7 +196,6 @@ export class RangeSliderComponent implements OnInit {
           return true;
         }
       }).length;
-
 
       function calcMinus(DataArr, indexElement, freeze) {
         return DataArr.map((item, indexMap) => {
@@ -252,7 +209,8 @@ export class RangeSliderComponent implements OnInit {
               ByNumber: numberItem,
               ByPersentage: 0,
               empty: item.empty,
-              locked: item.locked
+              locked: item.locked,
+              settings: item.settings
             };
           } else if (indexMap === indexElement) {
             const numb = freeze[index] ? item.ByNumber - value : +item.ByNumber;
@@ -261,7 +219,8 @@ export class RangeSliderComponent implements OnInit {
               ByNumber: numb,
               ByPersentage: 0,
               empty: item.empty,
-              locked: item.locked
+              locked: item.locked,
+              settings: item.settings
             };
           } else {
             if (item.locked === true || item.empty === true) {
@@ -270,7 +229,8 @@ export class RangeSliderComponent implements OnInit {
                 ByNumber: item.ByNumber,
                 ByPersentage: item.ByPersentage,
                 empty: item.empty,
-                locked: item.locked
+                locked: item.locked,
+                settings: item.settings
               };
             } else {
               if (numberItem <= 0) {
@@ -279,7 +239,8 @@ export class RangeSliderComponent implements OnInit {
                   ByNumber: 0,
                   ByPersentage: 0,
                   empty: item.empty,
-                  locked: item.locked
+                  locked: item.locked,
+                  settings: item.settings
                 };
               } else {
                 if (minusAmount) {
@@ -296,7 +257,8 @@ export class RangeSliderComponent implements OnInit {
                     ByNumber: 0,
                     ByPersentage: 0,
                     empty: item.empty,
-                    locked: item.locked
+                    locked: item.locked,
+                    settings: item.settings
                   };
                 } else {
                   return {
@@ -304,7 +266,8 @@ export class RangeSliderComponent implements OnInit {
                     ByNumber: +result.toFixed(2),
                     ByPersentage: 0,
                     empty: item.empty,
-                    locked: item.locked
+                    locked: item.locked,
+                    settings: item.settings
                   };
                 }
               }
@@ -326,7 +289,8 @@ export class RangeSliderComponent implements OnInit {
          ByNumber: +item.ByNumber,
          ByPersentage: 0,
          empty: item.empty,
-         locked: item.locked
+         locked: item.locked,
+         settings: item.settings
         };
       });
     }
@@ -338,21 +302,22 @@ export class RangeSliderComponent implements OnInit {
     const filledItems = items.filter(item => item.empty !== true);
 
     if (filledItems.length > 1) {
-      this.realWidth = width - (filledItems.length - 1) * this.handlerWidth;
+      return width - (filledItems.length - 1) * this.handlerWidth;
     } else {
-      this.realWidth = width;
+      return width;
     }
   }
 
   calculateItemData(data, totalNumber) {
-    data.map(item => {
-      this.itemsData.push({
+    return data.map(item => {
+      return {
         ByPersentage: (item.value / totalNumber) * 100,
         ByNumber: item.value,
         title: item.title,
         empty: item.empty,
-        locked: item.locked
-      });
+        locked: item.locked,
+        settings: item.settings
+      };
     });
   }
 
@@ -381,65 +346,36 @@ export class RangeSliderComponent implements OnInit {
   }
 
   getPositionHandler(index) {
-    let left = this.progressItemStartPosition(index);
-    let width = this.progressItemWidth(index);
-    let position = left + width;
-
-    return position;
+    return this.progressItemStartPosition(index) + this.progressItemWidth(index);
   }
 
   leftConstrain(index) {
-    if (index === 0) {
-      return 0;
-    } else {
-      return this.progressItemStartPosition(index);
-    }
+    return index === 0 ? 0 : this.progressItemStartPosition(index);
   }
 
-
-
   rightConstrain(index) {
-    let posHandl = 0;
+    let handlerPosition = 0;
 
-
-    let checkOthers = this.itemsData.filter((filterItem, filterIndex) => {
+    const checkOthers = this.itemsData.filter((filterItem, filterIndex) => {
       return filterIndex > index && filterItem.locked === false && filterItem.ByNumber > 0;
     });
 
     if (checkOthers.length) {
-      console.log('огонь на других', index, 'length', checkOthers);
-
       let i = 1;
       while (i <= this.itemsData.length) {
-
         if ( this.itemsData[index + i] && this.itemsData[index + i].empty === false) {
-          //posHandl = this.getPositionHandler(index + i) + this.handlerWidth + 2;
-          posHandl = this.getPositionHandler(index + i);
+          handlerPosition = this.getPositionHandler(index + i);
           break;
         }
         i++;
       }
-
-      // if(!posHandl) {
-      //   console.log('огонь на других в себя', index);
-      //   posHandl = this.getPositionHandler(index + 1);
-      // }
-
-
-    }else{
-      //огонь на себя
+    } else {
       if ( this.itemsData[index] && this.itemsData[index].empty === false) {
-
-        console.log('огонь на себя', index)
-        posHandl = this.getPositionHandler(index) + this.handlerWidth + 2;
+        handlerPosition = this.getPositionHandler(index) + this.handlerWidth + 2;
       }
     }
-
-     return posHandl - this.progressItemStartPosition(index);
-
-    }
-
-
+   return handlerPosition - this.progressItemStartPosition(index);
+  }
 
   getConstraints(index) {
     return {
@@ -453,13 +389,11 @@ export class RangeSliderComponent implements OnInit {
     const handlerPosition = this.getPositionHandler(index);
     if (this.useHandle !== false) {
       return {
-        left: this.freaze[index] ? this.freaze[index] : handlerPosition - startPosition + "px",
-        // display: this.itemsData[index].empty === true ? "none" : "block"
+        left: this.freaze[index] ? this.freaze[index] : handlerPosition - startPosition + "px"
       };
     } else {
       return {
-        left: handlerPosition - startPosition + "px",
-        // display: this.itemsData[index].empty === true ? "none" : "block"
+        left: handlerPosition - startPosition + "px"
       };
     }
   }
@@ -484,7 +418,8 @@ export class RangeSliderComponent implements OnInit {
         ByNumber: item.ByPersentage * this.totalSum / 100,
         title: item.title,
         empty: item.empty,
-        locked: item.locked
+        locked: item.locked,
+        settings: item.settings
       };
     });
   }
@@ -507,7 +442,8 @@ export class RangeSliderComponent implements OnInit {
         ByNumber: +item.ByNumber,
         ByPersentage: (item.ByNumber / this.totalSum) * 100,
         empty: item.empty,
-        locked: item.locked
+        locked: item.locked,
+        settings: item.settings
       };
     });
   }
@@ -534,7 +470,8 @@ export class RangeSliderComponent implements OnInit {
           ByNumber: +item.ByNumber,
           ByPersentage: item.ByPersentage,
           empty: item.empty,
-          locked: index === Mapindex ? !item.locked : item.locked
+          locked: index === Mapindex ? !item.locked : item.locked,
+          settings: item.settings
         };
       });
     }
@@ -544,12 +481,12 @@ export class RangeSliderComponent implements OnInit {
     if (this.itemsData[index].locked) {
       return false;
     } else {
-      const fff =  this.itemsData.filter((item, indexFilter) => {
+      const lockedItemsAhead = this.itemsData.filter((item, indexFilter) => {
         return indexFilter > index && item.locked === true;
       }).length;
 
-      const rr = this.itemsData.length - index - fff - 1;
-      if (rr) {
+      const isDraggable = this.itemsData.length - index - lockedItemsAhead - 1;
+      if (isDraggable > 0) {
         return true;
       } else {
         return false;
@@ -557,18 +494,16 @@ export class RangeSliderComponent implements OnInit {
     }
   }
 
-
   canIdenderhandler(index) {
-    console.log('canIdenderhandler');
     if (this.itemsData[index].empty === true) {
       return false;
-    }else{
-      let fil = this.itemsData.filter((item, filterIndex) => {
+    } else {
+      const itemsInAhead = this.itemsData.filter((item, filterIndex) => {
           return filterIndex > index && item.empty !== true;
       }).length;
-      if(fil){
+      if (itemsInAhead) {
         return true;
-      }else{
+      } else {
         return false;
       }
     }

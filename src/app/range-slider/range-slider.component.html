@@ -1,28 +1,28 @@
-<div class="component_wrapper">
-  <div class="Range-Slider" [ngStyle]="getTotalWidthSlider()">
-
+<div class="Range-Slider" [ngStyle]="getTotalWidthSlider()">
     <svg style="position: absolute; top: -99999%" viewBox="0 0 12 14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <svg viewBox="0 0 11 14" id="lock" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.5 5.84V4.25c0-.67-.23-1.23-.7-1.7h-.02a2.26 2.26 0 00-1.69-.71c-.67 0-1.24.23-1.72.71a2.3 2.3 0 00-.69 1.7v1.59H7.5zm2.38 7.41a.9.9 0 01-.63.25H.93a.97.97 0 01-.64-.24l-.01-.01-.02-.01a.9.9 0 01-.26-.65V6.75a.9.9 0 01.26-.65l.02-.01.01-.01a.97.97 0 01.55-.24V4.25c0-1.17.42-2.19 1.24-3.01A4.12 4.12 0 015.09 0C6.26 0 7.28.42 8.1 1.24a4.12 4.12 0 011.24 3.01v1.6c.2.01.39.1.54.24.2.17.3.4.3.66v5.84c0 .26-.1.5-.3.66zm-8.04-1.59v-4h6.5v4h-6.5z" clip-rule="evenodd"/></svg>
     </svg>
-
     <div class="Range-Slider__total-section">
       <p class="Range-Slider__total-text">
         <strong>Financial Advisory</strong><span>client service fee</span>
-        <input class="Range-Slider__total-input" (keyup)="validation($event.target)" type="text" [(ngModel)]="totalSum" #totalInput="ngModel" (change)="onTotalChange(totalInput)">
+        <input class="Range-Slider__total-input"
+               type="text"
+               #totalInput="ngModel"
+               [(ngModel)]="totalSum"
+               (keyup)="validation($event.target)"
+               (change)="onTotalChange(totalInput)">
       </p>
     </div>
-
     <div class="Range-Slider__slider-section">
       <div class="Range-Slider__slider-element">
-
           <div *ngFor="let el of _data; let index = index">
               <div class="range_restrictions color_{{index + 1}} top_{{index + 1}}" #country
                    [ngStyle]="getConstraints(index)" *ngIf="canIdenderhandler(index)">
                   <div class="range_handler" [lockAxis]="lockAxis"
                        (started)="onStart($event, index)"
-                       (stopped)="onStop($event, index)"
-                       (endOffset)="onMoveEnd($event, index)"
-                       (movingOffset)="onMoving($event, index, country)"
+                       (stopped)="onStop()"
+                       (endOffset)="onMoveEnd()"
+                       (movingOffset)="onMoving($event, index)"
                        [bounds]="getRefEl(index,country)"
                        [inBounds]="inBounds"
                        (edge)="checkEdge($event)"
@@ -34,14 +34,15 @@
           </div>
 
         <div class="Range-Slider__slider-baseline">
-
-         <div *ngFor="let line of _progressLine; let index = index">
-             <div *ngIf="line.empty !== true" [ngStyle]="getStyleProgress(index)"
-                   #progressLine
-                     class="Range-Slider__slider-progress">
-
-                 <p class="Range-Slider__slider-progress-percentage noselect">{{this.itemsData[index].ByPersentage | number:'1.1-2'}}%</p>
-
+         <div *ngFor="let line of _data; let index = index">
+             <div class="Range-Slider__slider-progress"
+                  *ngIf="line.empty !== true"
+                  [ngStyle]="getStyleProgress(index)"
+                  #progressLine>
+                 <p class="Range-Slider__slider-progress-percentage noselect"
+                    *ngIf="this.itemsData[index].empty === false">
+                     {{this.itemsData[index].ByPersentage | number:'1.1-2'}}%
+                 </p>
                  <div class="Range-Slider__slider-progress-status-wrapper color_{{index + 1}}">
                      <div *ngIf="itemsData[index].locked"  class="Range-Slider__slider-progress-status">
                          <div class="Range-Slider__slider-progress-lock-icon color_{{index + 1}}"></div>
@@ -54,10 +55,10 @@
     </div>
 
     <div class="Range-Slider__items-section">
-        <ng-container *ngFor="let item of data">
-            <div class="Range-Slider__item" *ngFor="let country of itemsData; let index = index">
+            <div class="Range-Slider__item"
+                 *ngFor="let country of itemsData;
+                 let index = index">
                 <label class="Range-Slider__item-label" (click)="lockSwitcher($event, index)">
-
                     <span *ngIf="!country.locked && !country.empty" class="Range-Slider__item-label-indicator color_{{index + 1}}"></span>
 
                     <span *ngIf="country.locked" class="Range-Slider__item-label-lock-status">
@@ -85,12 +86,9 @@
                            value="N/A"
                            disabled>
 
-                    <span *ngIf="!country.empty" class="Range-Slider__item-input-unit noselect">K</span>
+                    <span class="Range-Slider__item-input-unit noselect {{country.empty && 'Range-Slider__item-input-unit_hide'}} ">K</span>
                 </div>
-                <button *ngIf="index + 1 === itemsData.length" (click)="openOtherSettings()" class="Range-Slider__item-modal-link">{{country.title}} settings</button>
+                <button *ngIf="country.settings" (click)="openOtherSettings()" class="Range-Slider__item-modal-link">{{country.title}} settings</button>
             </div>
-        </ng-container>
-
     </div>
-  </div>
 </div>
